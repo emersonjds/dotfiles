@@ -1,4 +1,4 @@
-# Emerson Dotfiles
+# Emerson's Dotfiles
 
 Collection of dot files to set up and sync my software development environment.
 
