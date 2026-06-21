@@ -42,8 +42,34 @@ install_vscode() {
   wget -qO /tmp/vscode.deb "https://code.visualstudio.com/sha/download?build=stable&os=linux-deb-x64"
   sudo apt-get install -y /tmp/vscode.deb
 }
+install_docker() {
+  command_exists docker && return 0
+  log "Docker Engine + Compose"
+  # shellcheck disable=SC1091
+  . /etc/os-release
+  local repo codename
+  case "$ID" in
+    ubuntu)    repo="ubuntu"; codename="${VERSION_CODENAME:-}" ;;
+    linuxmint) repo="ubuntu"; codename="${UBUNTU_CODENAME:-}" ;;
+    debian)    repo="debian"; codename="${VERSION_CODENAME:-}" ;;
+    *)         repo="ubuntu"; codename="${UBUNTU_CODENAME:-${VERSION_CODENAME:-}}" ;;
+  esac
+  sudo install -m 0755 -d /etc/apt/keyrings
+  curl -fsSL "https://download.docker.com/linux/$repo/gpg" \
+    | sudo gpg --dearmor -o /etc/apt/keyrings/docker.gpg
+  sudo chmod a+r /etc/apt/keyrings/docker.gpg
+  echo "deb [arch=$(dpkg --print-architecture) signed-by=/etc/apt/keyrings/docker.gpg] https://download.docker.com/linux/$repo $codename stable" \
+    | sudo tee /etc/apt/sources.list.d/docker.list >/dev/null
+  sudo apt-get update -y
+  sudo apt-get install -y docker-ce docker-ce-cli containerd.io \
+    docker-buildx-plugin docker-compose-plugin
+  sudo usermod -aG docker "$USER" || true
+  warn "Docker: faça logout/login para usar o docker sem sudo"
+}
+
 install_chrome || warn "Chrome falhou"
 install_vscode || warn "VSCode falhou"
+install_docker || warn "Docker falhou"
 
 # GUI via Flatpak
 log "Flatpak: apps GUI"
