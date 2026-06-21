@@ -1,10 +1,39 @@
-# Starship — config mínima e rápida.
+# Starship — prompt do zsh
 add_newline = true
 command_timeout = 1000
 
-[git_branch]
-symbol = " "
+format = """
+$directory$git_branch$git_status$nodejs$python$rust$golang$java$cmd_duration
+$character"""
+
+[character]
+success_symbol = "[❯](bold green)"
+error_symbol = "[❯](bold red)"
 
 [directory]
-truncation_length = 3
-truncate_to_repo = true
+truncation_length = 0       # 0 = sem truncar (mostra o caminho inteiro)
+truncate_to_repo = false    # não encurta para o nome do repo
+style = "bold cyan"
+
+[git_branch]
+symbol = " "
+style = "bold purple"
+
+[git_status]
+style = "bold yellow"
+
+[cmd_duration]
+min_time = 2000
+format = "[ took $duration]($style)"
+style = "yellow"
+
+[nodejs]
+symbol = " "
+[python]
+symbol = " "
+[rust]
+symbol = " "
+[golang]
+symbol = " "
+[java]
+symbol = " "
