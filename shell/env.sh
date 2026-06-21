@@ -2,8 +2,11 @@
 # Variáveis de ambiente cross-platform. Sourced pelo ~/.zshrc.
 # Resolve tudo dinamicamente — nada de versão hardcoded.
 
-# Escape hatch opcional (ex.: JAVA_VERSION=17). Não-versionado.
+# Override opcional de versões (ex.: JAVA_VERSION=21). Não-versionado.
 [ -r "${DOTFILES:-$HOME/dotfiles}/packages/versions.env" ] && . "${DOTFILES:-$HOME/dotfiles}/packages/versions.env"
+# Java padrão: 17 (estável p/ Android/React Native/Flutter).
+# Quando o latest estiver de boa com RN/Flutter, troque o 17 aqui (ou via versions.env).
+JAVA_VERSION="${JAVA_VERSION:-17}"
 
 _os="$(uname -s)"
 
@@ -11,12 +14,9 @@ if [ "$_os" = "Darwin" ]; then
   # Homebrew (Apple Silicon ou Intel)
   if [ -x /opt/homebrew/bin/brew ]; then eval "$(/opt/homebrew/bin/brew shellenv)"
   elif [ -x /usr/local/bin/brew ]; then eval "$(/usr/local/bin/brew shellenv)"; fi
-  # Java: versão específica se pedida, senão a mais nova instalada
-  if [ -n "${JAVA_VERSION:-}" ]; then
-    JAVA_HOME="$(/usr/libexec/java_home -v "$JAVA_VERSION" 2>/dev/null)"
-  else
-    JAVA_HOME="$(/usr/libexec/java_home 2>/dev/null)"
-  fi
+  # Java: usa a versão pedida (padrão 17); se não existir, cai pra mais nova instalada
+  JAVA_HOME="$(/usr/libexec/java_home -v "$JAVA_VERSION" 2>/dev/null)"
+  [ -z "$JAVA_HOME" ] && JAVA_HOME="$(/usr/libexec/java_home 2>/dev/null)"
   export ANDROID_HOME="$HOME/Library/Android/sdk"
   export PNPM_HOME="$HOME/Library/pnpm"
 else
@@ -24,7 +24,9 @@ else
   if [ -x /home/linuxbrew/.linuxbrew/bin/brew ]; then
     eval "$(/home/linuxbrew/.linuxbrew/bin/brew shellenv)"
   fi
-  if [ -n "${JAVA_VERSION:-}" ] && [ -d "/usr/lib/jvm/java-${JAVA_VERSION}-openjdk-amd64" ]; then
+  if command -v brew >/dev/null 2>&1 && [ -d "$(brew --prefix "openjdk@${JAVA_VERSION}" 2>/dev/null)" ]; then
+    JAVA_HOME="$(brew --prefix "openjdk@${JAVA_VERSION}")"
+  elif [ -d "/usr/lib/jvm/java-${JAVA_VERSION}-openjdk-amd64" ]; then
     JAVA_HOME="/usr/lib/jvm/java-${JAVA_VERSION}-openjdk-amd64"
   elif command -v brew >/dev/null 2>&1 && [ -d "$(brew --prefix openjdk 2>/dev/null)" ]; then
     JAVA_HOME="$(brew --prefix openjdk)"
