@@ -81,9 +81,11 @@ Sem esse arquivo, vale sempre a última estável.
 | **GitHub Copilot CLI** (`@github/copilot` + extensão `gh copilot`) | sugestões de comando/código via GitHub |
 | **gh** | CLI do GitHub (PRs, issues, releases) |
 
-### Banco de dados / backend
+### Banco de dados / backend / containers
 | Ferramenta | Por quê |
 |------------|---------|
+| **PostgreSQL** | banco de dados relacional (latest estável) |
+| **Docker + Docker Compose** | containers (Docker Desktop no macOS; Docker Engine + plugin Compose no Linux) |
 | **DBeaver** | cliente SQL universal |
 | **MongoDB Compass** | GUI do MongoDB |
 | **Supabase CLI** | desenvolvimento local com Supabase |
