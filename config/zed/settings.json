@@ -1,0 +1,117 @@
+{
+  "git_panel": {
+    "dock": "left"
+  },
+  "context_servers": {
+    "serena-context-server": {
+      "enabled": true,
+      "remote": false,
+      "settings": {
+        "python_executable": null
+      }
+    },
+    "mcp-server-supabase": {
+      "enabled": true,
+      "remote": false,
+      "settings": {
+        "supabase_access_token": "YOUR_TOKEN",
+        "read_only": false
+      }
+    }
+  },
+  "project_panel": {
+    "dock": "left"
+  },
+  "base_keymap": "VSCode",
+  "agent": {
+    "dock": "right",
+    "tool_permissions": {
+      "tools": {
+        "terminal": {
+          "default": "allow",
+          "always_allow": [
+            { "pattern": "^ls\\b" },
+            { "pattern": "^echo\\s+Diretório(\\s|$)" },
+            { "pattern": "^find\\s+\\~(\\s|$)" },
+            { "pattern": "^head\\b" }
+          ]
+        }
+      }
+    },
+    "default_model": {
+      "provider": "copilot_chat",
+      "model": "claude-haiku-4.5",
+      "enable_thinking": true
+    },
+    "favorite_models": [],
+    "model_parameters": []
+  },
+  "edit_predictions": {
+    "provider": "copilot"
+  },
+
+  "icon_theme": {
+    "mode": "light",
+    "light": "Catppuccin Mocha",
+    "dark": "Catppuccin Mocha"
+  },
+  "theme": {
+    "mode": "dark",
+    "light": "Catppuccin Latte",
+    "dark": "Catppuccin Macchiato"
+  },
+
+  "buffer_font_family": "JetBrains Mono",
+  "buffer_font_size": 13,
+  "buffer_font_weight": 400,
+  "buffer_line_height": "comfortable",
+  "buffer_font_features": {
+    "calt": true,
+    "liga": true,
+    "ss01": true,
+    "ss02": true,
+    "ss19": true,
+    "zero": true
+  },
+  "ui_font_family": "Inter",
+  "ui_font_size": 15,
+  "agent_buffer_font_size": 14,
+  "agent_ui_font_size": 15,
+  "text_rendering_mode": "platform_default",
+
+  "relative_line_numbers": "enabled",
+  "cursor_blink": false,
+  "show_whitespaces": "selection",
+  "show_wrap_guides": true,
+  "wrap_guides": [80, 120],
+  "soft_wrap": "preferred_line_length",
+  "preferred_line_length": 120,
+  "scroll_beyond_last_line": "one_page",
+
+  "format_on_save": "on",
+  "ensure_final_newline_on_save": true,
+  "remove_trailing_whitespace_on_save": true,
+  "tab_size": 2,
+
+  "git": {
+    "inline_blame": {
+      "enabled": true,
+      "delay_ms": 600
+    }
+  },
+
+  "telemetry": {
+    "diagnostics": false,
+    "metrics": false
+  },
+  "auto_update": true,
+  "confirm_quit": true,
+
+  "terminal": {
+    "font_family": "JetBrains Mono",
+    "font_size": 13,
+    "shell": {
+      "program": "zsh"
+    }
+  }
+}

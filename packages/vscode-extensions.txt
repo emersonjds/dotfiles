@@ -1,0 +1,13 @@
+dbaeumer.vscode-eslint
+esbenp.prettier-vscode
+dsznajder.es7-react-js-snippets
+msjsdiag.vscode-react-native
+dart-code.dart-code
+dart-code.flutter
+redhat.java
+vscjava.vscode-java-pack
+ms-python.python
+rust-lang.rust-analyzer
+eamodio.gitlens
+formulahendry.auto-rename-tag
+naumovs.color-highlight

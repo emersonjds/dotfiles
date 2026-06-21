@@ -1,0 +1,3 @@
+packages/versions.env
+*.bak.*
+.DS_Store
