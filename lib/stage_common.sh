@@ -7,10 +7,7 @@ link_dotfiles() {
   safe_symlink "$DOTFILES_DIR/git/gitconfig"            "$HOME/.gitconfig"
   safe_symlink "$DOTFILES_DIR/config/starship.toml"     "$HOME/.config/starship.toml"
   safe_symlink "$DOTFILES_DIR/config/zed/settings.json" "$HOME/.config/zed/settings.json"
-  # garante que ~/dotfiles aponta pro repo (env.sh/zshrc usam esse caminho)
-  if [ "$DOTFILES_DIR" != "$HOME/dotfiles" ] && [ ! -e "$HOME/dotfiles" ]; then
-    ln -s "$DOTFILES_DIR" "$HOME/dotfiles"
-  fi
+  # O zshrc resolve a raiz do repo pelo próprio symlink, então não dependemos de ~/dotfiles.
 }
 
 install_oh_my_zsh() {
