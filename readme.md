@@ -26,16 +26,19 @@ cd ~/dotfiles
 O `install.sh` detecta o sistema operacional sozinho e faz o resto. Ao terminar,
 abra um novo terminal (ou rode `exec zsh`).
 
-### Fixar uma versão específica (opcional)
+### Versões
 
-Se a última versão de alguma ferramenta quebrar um projeto, crie
-`packages/versions.env` (não versionado) com a versão desejada, por exemplo:
+A regra geral é **sempre a última estável**. A exceção é o **Java, fixado no 17**
+por padrão (estável para Android / React Native / Flutter) — definido em
+`shell/env.sh`. O `openjdk` latest também é instalado, então quando o mais novo
+estiver de boa com RN/Flutter basta trocar o `17` no `env.sh`.
+
+Para um override **só nesta máquina** (sem mexer no repo), crie
+`packages/versions.env` (não versionado), por exemplo:
 
 ```bash
-JAVA_VERSION=17
+JAVA_VERSION=21
 ```
-
-Sem esse arquivo, vale sempre a última estável.
 
 ---
 
@@ -110,7 +113,7 @@ Definidas em `shell/env.sh`, resolvidas dinamicamente conforme o SO:
 
 | Variável | macOS | Linux |
 |----------|-------|-------|
-| `JAVA_HOME` | JDK mais novo (`/usr/libexec/java_home`) | `brew --prefix openjdk` |
+| `JAVA_HOME` | JDK 17 por padrão (`java_home -v 17`) | `brew --prefix openjdk@17` |
 | `ANDROID_HOME` / `ANDROID_SDK_ROOT` | `~/Library/Android/sdk` | `~/Android/Sdk` |
 | `NVM_DIR` | `~/.nvm` | `~/.nvm` |
 | `BUN_INSTALL` | `~/.bun` | `~/.bun` |
