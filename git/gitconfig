@@ -1,0 +1,11 @@
+[user]
+	name = Emerson Silva
+	email = emerson_jdss@hotmail.com
+[init]
+	defaultBranch = main
+[pull]
+	rebase = false
+[core]
+	editor = nvim
+[color]
+	ui = auto
