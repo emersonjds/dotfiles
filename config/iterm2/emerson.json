@@ -1,0 +1,62 @@
+{
+  "Profiles": [
+    {
+      "Name": "Emerson",
+      "Guid": "emerson-tokyonight-2026",
+      "Dynamic Profile Parent Name": "Default",
+
+      "Normal Font": "JetBrainsMono Nerd Font Mono 14",
+      "Use Non-ASCII Font": false,
+      "ASCII Ligatures": true,
+      "Non-ASCII Ligatures": true,
+      "Horizontal Spacing": 1,
+      "Vertical Spacing": 1.1,
+
+      "Cursor Type": 2,
+      "Blinking Cursor": false,
+
+      "Columns": 120,
+      "Rows": 32,
+
+      "Scrollback Lines": 50000,
+      "Unlimited Scrollback": false,
+
+      "Silence Bell": true,
+      "Visual Bell": true,
+      "Flashing Bell": false,
+
+      "Mouse Reporting": true,
+      "Option Key Sends": 2,
+      "Right Option Key Sends": 2,
+      "Custom Directory": "Recycle",
+
+      "Minimum Contrast": 0,
+      "Transparency": 0,
+
+      "Background Color": { "Color Space": "sRGB", "Red Component": 0.141, "Green Component": 0.157, "Blue Component": 0.231 },
+      "Foreground Color": { "Color Space": "sRGB", "Red Component": 0.753, "Green Component": 0.792, "Blue Component": 0.961 },
+      "Bold Color":       { "Color Space": "sRGB", "Red Component": 0.875, "Green Component": 0.902, "Blue Component": 0.984 },
+      "Cursor Color":     { "Color Space": "sRGB", "Red Component": 0.753, "Green Component": 0.792, "Blue Component": 0.961 },
+      "Cursor Text Color":{ "Color Space": "sRGB", "Red Component": 0.141, "Green Component": 0.157, "Blue Component": 0.231 },
+      "Selection Color":  { "Color Space": "sRGB", "Red Component": 0.225, "Green Component": 0.259, "Blue Component": 0.407 },
+      "Selected Text Color": { "Color Space": "sRGB", "Red Component": 0.875, "Green Component": 0.902, "Blue Component": 0.984 },
+
+      "Ansi 0 Color":  { "Color Space": "sRGB", "Red Component": 0.114, "Green Component": 0.125, "Blue Component": 0.184 },
+      "Ansi 1 Color":  { "Color Space": "sRGB", "Red Component": 0.969, "Green Component": 0.463, "Blue Component": 0.557 },
+      "Ansi 2 Color":  { "Color Space": "sRGB", "Red Component": 0.620, "Green Component": 0.808, "Blue Component": 0.416 },
+      "Ansi 3 Color":  { "Color Space": "sRGB", "Red Component": 0.878, "Green Component": 0.686, "Blue Component": 0.408 },
+      "Ansi 4 Color":  { "Color Space": "sRGB", "Red Component": 0.478, "Green Component": 0.635, "Blue Component": 0.969 },
+      "Ansi 5 Color":  { "Color Space": "sRGB", "Red Component": 0.733, "Green Component": 0.604, "Blue Component": 0.969 },
+      "Ansi 6 Color":  { "Color Space": "sRGB", "Red Component": 0.490, "Green Component": 0.812, "Blue Component": 1.000 },
+      "Ansi 7 Color":  { "Color Space": "sRGB", "Red Component": 0.663, "Green Component": 0.694, "Blue Component": 0.839 },
+      "Ansi 8 Color":  { "Color Space": "sRGB", "Red Component": 0.255, "Green Component": 0.282, "Blue Component": 0.408 },
+      "Ansi 9 Color":  { "Color Space": "sRGB", "Red Component": 0.969, "Green Component": 0.463, "Blue Component": 0.557 },
+      "Ansi 10 Color": { "Color Space": "sRGB", "Red Component": 0.620, "Green Component": 0.808, "Blue Component": 0.416 },
+      "Ansi 11 Color": { "Color Space": "sRGB", "Red Component": 0.878, "Green Component": 0.686, "Blue Component": 0.408 },
+      "Ansi 12 Color": { "Color Space": "sRGB", "Red Component": 0.478, "Green Component": 0.635, "Blue Component": 0.969 },
+      "Ansi 13 Color": { "Color Space": "sRGB", "Red Component": 0.733, "Green Component": 0.604, "Blue Component": 0.969 },
+      "Ansi 14 Color": { "Color Space": "sRGB", "Red Component": 0.490, "Green Component": 0.812, "Blue Component": 1.000 },
+      "Ansi 15 Color": { "Color Space": "sRGB", "Red Component": 0.753, "Green Component": 0.792, "Blue Component": 0.961 }
+    }
+  ]
+}

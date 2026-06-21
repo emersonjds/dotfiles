@@ -8,8 +8,10 @@ plugins=(git)
 setopt HIST_IGNORE_ALL_DUPS HIST_IGNORE_SPACE SHARE_HISTORY INC_APPEND_HISTORY EXTENDED_HISTORY
 setopt AUTO_CD AUTO_PUSHD PUSHD_IGNORE_DUPS
 
-# Carrega config do dotfiles
-DOTFILES="${DOTFILES:-$HOME/dotfiles}"
+# Carrega config do dotfiles.
+# Raiz resolvida a partir deste arquivo (~/.zshrc é symlink -> repo/shell/zshrc),
+# então funciona esteja o repo onde estiver, sem depender de ~/dotfiles.
+DOTFILES="${DOTFILES:-${${(%):-%x}:A:h:h}}"
 for f in env aliases plugins; do
   [ -r "$DOTFILES/shell/$f.sh" ] && source "$DOTFILES/shell/$f.sh"
 done

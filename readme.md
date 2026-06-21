@@ -133,7 +133,8 @@ cmdline-tools), `bun`, `pnpm` e `~/.local/bin`.
 | `macos/setup.sh` + `macos/Brewfile` | Instalação no macOS via Homebrew (formulae + casks + fonts) |
 | `linux/setup.sh` | Instalação no Linux (apt + Homebrew-on-Linux + Flatpak + PWAs) |
 | `shell/` | `zshrc`, `env.sh`, `aliases.sh`, `plugins.sh` (symlinkados para o `$HOME`) |
-| `config/` | `starship.toml`, `zed/settings.json` (symlinkados para `~/.config`) |
+| `config/` | `starship.toml`, `zed/settings.json`, `vscode/settings.json`, `iterm2/emerson.json` (symlinkados) |
+| `macos/terminal-setup.sh` | ajustes de fonte (Nerd Font) do iTerm2/Terminal.app via plist — rode com o iTerm2 **fechado** |
 | `git/gitconfig` | identidade e padrões do git |
 | `packages/` | manifestos: `npm-global.txt`, `vscode-extensions.txt` (+ `versions.env` opcional) |
 

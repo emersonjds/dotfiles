@@ -3,7 +3,7 @@
 # Resolve tudo dinamicamente — nada de versão hardcoded.
 
 # Escape hatch opcional (ex.: JAVA_VERSION=17). Não-versionado.
-[ -r "$HOME/dotfiles/packages/versions.env" ] && . "$HOME/dotfiles/packages/versions.env"
+[ -r "${DOTFILES:-$HOME/dotfiles}/packages/versions.env" ] && . "${DOTFILES:-$HOME/dotfiles}/packages/versions.env"
 
 _os="$(uname -s)"
 
