@@ -17,6 +17,12 @@ eval "$("$(brew_prefix)/bin/brew" shellenv)"
 log "brew update"
 brew update
 
+# Taps de terceiros (supabase, ngrok) exigem "trust" no Homebrew atual.
+log "Confiando nas taps de terceiros"
+brew tap supabase/tap >/dev/null 2>&1 || true
+brew tap ngrok/ngrok  >/dev/null 2>&1 || true
+brew trust supabase/tap ngrok/ngrok >/dev/null 2>&1 || export HOMEBREW_NO_REQUIRE_TAP_TRUST=1
+
 log "brew bundle (formulae + casks + fonts)"
 brew bundle --file="$SCRIPT_DIR/Brewfile" || warn "brew bundle teve falhas pontuais (continuando)"
 
