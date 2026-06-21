@@ -1,0 +1,23 @@
+# ~/.zshrc — gerenciado pelo dotfiles (symlink). NÃO editar direto; edite no repo.
+export ZSH="$HOME/.oh-my-zsh"
+ZSH_THEME=""   # prompt vem do starship
+plugins=(git)
+[ -r "$ZSH/oh-my-zsh.sh" ] && source "$ZSH/oh-my-zsh.sh"
+
+# History melhorado
+setopt HIST_IGNORE_ALL_DUPS HIST_IGNORE_SPACE SHARE_HISTORY INC_APPEND_HISTORY EXTENDED_HISTORY
+setopt AUTO_CD AUTO_PUSHD PUSHD_IGNORE_DUPS
+
+# Carrega config do dotfiles
+DOTFILES="${DOTFILES:-$HOME/dotfiles}"
+for f in env aliases plugins; do
+  [ -r "$DOTFILES/shell/$f.sh" ] && source "$DOTFILES/shell/$f.sh"
+done
+
+# nvm (carregado tarde p/ não atrasar o shell)
+export NVM_DIR="$HOME/.nvm"
+[ -s "$NVM_DIR/nvm.sh" ] && \. "$NVM_DIR/nvm.sh"
+[ -s "$NVM_DIR/bash_completion" ] && \. "$NVM_DIR/bash_completion"
+
+# bun completions
+[ -s "$HOME/.bun/_bun" ] && source "$HOME/.bun/_bun"
