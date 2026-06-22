@@ -2,8 +2,8 @@
     "workbench.startupEditor": "none",
     "gitlens.ai.model": "vscode",
     "gitlens.ai.vscode.model": "copilot:gpt-4.1",
-    "workbench.colorTheme": "Dracula Pro (Blade)",
-    "workbench.iconTheme": "catppuccin-perfect-mocha",
+    "workbench.iconTheme": "catppuccin-perfect-dracula",
     "extensions.ignoreRecommendations": true,
-    "terminal.integrated.fontFamily": "JetBrainsMono Nerd Font Mono"
+    "terminal.integrated.fontFamily": "JetBrainsMono Nerd Font Mono",
+    "workbench.colorTheme": "Dracula Pro (Blade)"
 }
