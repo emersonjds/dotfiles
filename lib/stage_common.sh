@@ -70,8 +70,14 @@ install_vscode_exts() {
   done < "$DOTFILES_DIR/packages/vscode-extensions.txt"
 }
 
+install_claude_code() {
+  command_exists claude && return 0
+  log "Instalando Claude Code (installer nativo)"
+  curl -fsSL https://claude.ai/install.sh | bash || warn "falha ao instalar Claude Code"
+}
+
 install_ai_clis() {
-  # Claude Code + Copilot CLI já vêm via npm-global.txt. Aqui: extensão gh copilot.
+  # Copilot CLI vem via npm-global.txt; Claude Code via installer nativo. Aqui: extensão gh copilot.
   if command_exists gh; then
     if ! gh extension list 2>/dev/null | grep -q 'github/gh-copilot'; then
       log "Instalando extensão gh copilot"
@@ -100,6 +106,7 @@ run_common_stage() {
   install_bun
   install_npm_globals
   install_vscode_exts
+  install_claude_code
   install_ai_clis
   set_default_shell
   log "Estágio comum concluído"
