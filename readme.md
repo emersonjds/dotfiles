@@ -26,6 +26,18 @@ cd ~/dotfiles
 O `install.sh` detecta o sistema operacional sozinho e faz o resto. Ao terminar,
 abra um novo terminal (ou rode `exec zsh`).
 
+### Passos manuais (uma vez por máquina)
+
+O `install.sh` deixa quase tudo pronto, mas dois ajustes dependem de credenciais
+suas e **não** ficam no repo:
+
+- **GitHub CLI:** rode `gh auth login` para autenticar o `gh` (e habilitar o
+  `gh copilot`, que é built-in e instala o Copilot CLI no primeiro uso).
+- **Token do Supabase no Zed:** o `config/zed/settings.json` versiona o campo
+  `supabase_access_token` como o placeholder `"YOUR_TOKEN"`. Troque pelo seu token
+  real **localmente** — como o arquivo é symlink, basta editar no Zed; **não
+  comite** o token de volta no repo.
+
 ### Versões
 
 A regra geral é **sempre a última estável**. A exceção é o **Java, fixado no 17**
@@ -81,7 +93,7 @@ JAVA_VERSION=21
 | Ferramenta | Por quê |
 |------------|---------|
 | **Claude Code** (`claude`) | assistente de código no terminal |
-| **GitHub Copilot CLI** (`@github/copilot` + extensão `gh copilot`) | sugestões de comando/código via GitHub |
+| **GitHub Copilot CLI** (`@github/copilot`; o `gh copilot` é built-in no `gh` e instala/encaminha pra ele) | sugestões de comando/código via GitHub |
 | **gh** | CLI do GitHub (PRs, issues, releases) |
 
 ### Banco de dados / backend / containers
