@@ -18,13 +18,21 @@ log "brew update"
 brew update
 
 # Taps de terceiros (supabase, ngrok) exigem "trust" no Homebrew atual.
+# `brew trust` não é confiável entre versões; desligar a checagem garante
+# que o `brew bundle` não quebre no meio por causa das taps.
 log "Confiando nas taps de terceiros"
 brew tap supabase/tap >/dev/null 2>&1 || true
 brew tap ngrok/ngrok  >/dev/null 2>&1 || true
-brew trust supabase/tap ngrok/ngrok >/dev/null 2>&1 || export HOMEBREW_NO_REQUIRE_TAP_TRUST=1
+export HOMEBREW_NO_REQUIRE_TAP_TRUST=1
 
+# Não engolir falhas: se algum cask/formula falhar, mostramos exatamente o quê
+# (antes isso ficava mascarado e apps como o Obsidian sumiam silenciosamente).
 log "brew bundle (formulae + casks + fonts)"
-brew bundle --file="$SCRIPT_DIR/Brewfile" || warn "brew bundle teve falhas pontuais (continuando)"
+if ! brew bundle --file="$SCRIPT_DIR/Brewfile"; then
+  warn "brew bundle terminou com falhas — itens que NÃO ficaram instalados:"
+  brew bundle check --file="$SCRIPT_DIR/Brewfile" --verbose || true
+  warn "Reveja os itens acima e rode novamente: brew bundle --file=$SCRIPT_DIR/Brewfile"
+fi
 
 log "brew cleanup"
 brew cleanup || true
