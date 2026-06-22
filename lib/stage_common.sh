@@ -76,18 +76,6 @@ install_claude_code() {
   curl -fsSL https://claude.ai/install.sh | bash || warn "falha ao instalar Claude Code"
 }
 
-install_ai_clis() {
-  # Copilot CLI vem via npm-global.txt; Claude Code via installer nativo. Aqui: extensão gh copilot.
-  if command_exists gh; then
-    if ! gh extension list 2>/dev/null | grep -q 'github/gh-copilot'; then
-      log "Instalando extensão gh copilot"
-      gh extension install github/gh-copilot >/dev/null 2>&1 || warn "gh copilot falhou (faça gh auth login antes)"
-    fi
-  else
-    warn "gh ausente; pulei extensão copilot"
-  fi
-}
-
 set_default_shell() {
   local zsh_bin; zsh_bin="$(command -v zsh)"
   [ -z "$zsh_bin" ] && return 0
@@ -107,7 +95,6 @@ run_common_stage() {
   install_npm_globals
   install_vscode_exts
   install_claude_code
-  install_ai_clis
   set_default_shell
   log "Estágio comum concluído"
 }
