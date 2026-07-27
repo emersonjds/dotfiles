@@ -1,23 +1,25 @@
 #!/usr/bin/env bash
 # Estágio comum aos dois SOs. Source após lib/common.sh.
 
-link_dotfiles() {
-  log "Linkando dotfiles"
-  safe_symlink "$DOTFILES_DIR/shell/zshrc"              "$HOME/.zshrc"
-  safe_symlink "$DOTFILES_DIR/git/gitconfig"            "$HOME/.gitconfig"
-  safe_symlink "$DOTFILES_DIR/config/starship.toml"     "$HOME/.config/starship.toml"
-  safe_symlink "$DOTFILES_DIR/config/zed/settings.json" "$HOME/.config/zed/settings.json"
-  # Configs de apps GUI, com caminho por SO.
-  if [ "$(uname -s)" = "Darwin" ]; then
-    safe_symlink "$DOTFILES_DIR/config/iterm2/emerson.json" \
-      "$HOME/Library/Application Support/iTerm2/DynamicProfiles/emerson.json"
-    safe_symlink "$DOTFILES_DIR/config/vscode/settings.json" \
-      "$HOME/Library/Application Support/Code/User/settings.json"
-  else
-    safe_symlink "$DOTFILES_DIR/config/vscode/settings.json" \
-      "$HOME/.config/Code/User/settings.json"
-  fi
-  # O zshrc resolve a raiz do repo pelo próprio symlink, então não dependemos de ~/dotfiles.
+# Symlinks do modelo antigo apontavam pro repo e viravam lixo quebrado ao movê-lo.
+clean_legacy_links() {
+  local n=0 f
+  while IFS= read -r f; do
+    rm -f "$f"; n=$((n + 1))
+  done < <(find "$HOME" -maxdepth 1 -name '*.bak.*' -type l 2>/dev/null)
+  [ "$n" -gt 0 ] && log "removidos $n backups legados que eram symlink"
+  return 0
+}
+
+install_configs() {
+  log "Instalando configs (cópia para a máquina)"
+  clean_legacy_links
+  mkdir -p "$SHELL_CONFIG_DIR"
+  while IFS='|' read -r rel dest; do
+    [ -n "$rel" ] || continue
+    install_file "$DOTFILES_DIR/$rel" "$dest"
+  done < <(dotfiles_map)
+  # Nada em $HOME aponta pro repo: apagar o repo não quebra o shell.
 }
 
 install_oh_my_zsh() {
@@ -95,7 +97,7 @@ set_default_shell() {
 
 run_common_stage() {
   install_oh_my_zsh
-  link_dotfiles
+  install_configs
   install_node
   install_bun
   install_npm_globals
