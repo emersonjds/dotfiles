@@ -65,6 +65,27 @@ path_prepend "$PNPM_HOME"
 path_prepend "$HOME/.yarn/bin"
 path_prepend "${XDG_CONFIG_HOME:-$HOME/.config}/yarn/global/node_modules/.bin"
 
+# Ruby: rbenv (usado pelo CocoaPods). Sem isso o rbenv fica instalado e inerte.
+if command -v rbenv >/dev/null 2>&1; then
+  export RBENV_ROOT="${RBENV_ROOT:-$HOME/.rbenv}"
+  path_prepend "$RBENV_ROOT/bin"
+  path_prepend "$RBENV_ROOT/shims"
+  eval "$(rbenv init - zsh)"
+fi
+
+# Rust: rustup escreve o env.; via brew só existe o ~/.cargo/bin.
+# shellcheck disable=SC1091
+[ -r "$HOME/.cargo/env" ] && . "$HOME/.cargo/env"
+path_prepend "$HOME/.cargo/bin"
+
+# Python: pipx e uv instalam em ~/.local/bin (prependado no fim do arquivo).
+# pyenv só se estiver de fato instalado — no brew python o pyenv atrapalha.
+if command -v pyenv >/dev/null 2>&1; then
+  export PYENV_ROOT="${PYENV_ROOT:-$HOME/.pyenv}"
+  path_prepend "$PYENV_ROOT/bin"
+  eval "$(pyenv init - zsh)"
+fi
+
 export LC_ALL="${LC_ALL:-en_US.UTF-8}"
 export REACT_NATIVE_NO_METRO_WINDOW=true
 
