@@ -66,10 +66,11 @@ path_prepend "$HOME/.yarn/bin"
 path_prepend "${XDG_CONFIG_HOME:-$HOME/.config}/yarn/global/node_modules/.bin"
 
 # Ruby: rbenv (usado pelo CocoaPods). Sem isso o rbenv fica instalado e inerte.
-if command -v rbenv >/dev/null 2>&1; then
+# O próprio `rbenv init` põe os shims no PATH — não prependar aqui, duplica.
+# RBENV_SHELL é setado por ele: serve de guarda pra não rodar duas vezes.
+if command -v rbenv >/dev/null 2>&1 && [ -z "${RBENV_SHELL:-}" ]; then
   export RBENV_ROOT="${RBENV_ROOT:-$HOME/.rbenv}"
   path_prepend "$RBENV_ROOT/bin"
-  path_prepend "$RBENV_ROOT/shims"
   eval "$(rbenv init - zsh)"
 fi
 
