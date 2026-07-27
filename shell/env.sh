@@ -86,6 +86,12 @@ if command -v pyenv >/dev/null 2>&1; then
   eval "$(pyenv init - zsh)"
 fi
 
+# Solana e JetBrains Toolbox: estavam chumbados no ~/.zprofile, fora do repo.
+# path_prepend já ignora se o diretório não existir.
+path_prepend "$HOME/.local/share/solana/install/active_release/bin"
+path_prepend "$HOME/Library/Application Support/JetBrains/Toolbox/scripts"
+path_prepend "$HOME/.local/share/JetBrains/Toolbox/scripts"
+
 export LC_ALL="${LC_ALL:-en_US.UTF-8}"
 export REACT_NATIVE_NO_METRO_WINDOW=true
 
