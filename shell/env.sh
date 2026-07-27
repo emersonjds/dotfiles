@@ -1,29 +1,41 @@
 #!/usr/bin/env bash
 # Variáveis de ambiente cross-platform. Sourced pelo ~/.zshrc.
-# Resolve tudo dinamicamente — nada de versão hardcoded.
+# Resolve tudo dinamicamente — nada de versão hardcoded, nada de caminho de uma máquina só.
 
-# Override opcional de versões (ex.: JAVA_VERSION=21). Não-versionado.
-[ -r "${DOTFILES:-$HOME/dotfiles}/packages/versions.env" ] && . "${DOTFILES:-$HOME/dotfiles}/packages/versions.env"
+# Adiciona ao PATH só se o diretório existe e ainda não está lá.
+# Sem isso o PATH duplicava a cada `source`.
+path_prepend() {
+  [ -d "$1" ] || return 0
+  case ":$PATH:" in *":$1:"*) return 0 ;; esac
+  PATH="$1:$PATH"
+}
+
+# Override opcional de versões (ex.: JAVA_VERSION=21), local da máquina e não-versionado.
+_shell_config_dir="${XDG_CONFIG_HOME:-$HOME/.config}/shell"
+# shellcheck disable=SC1091
+[ -r "$_shell_config_dir/versions.env" ] && . "$_shell_config_dir/versions.env"
 # Java padrão: 17 (estável p/ Android/React Native/Flutter).
 # Quando o latest estiver de boa com RN/Flutter, troque o 17 aqui (ou via versions.env).
 JAVA_VERSION="${JAVA_VERSION:-17}"
 
 _os="$(uname -s)"
 
+# Homebrew mora no ~/.zprofile (login shell). Aqui é só rede de segurança
+# para shell não-login — o guard evita duplicar PATH.
+if ! command -v brew >/dev/null 2>&1; then
+  for _b in /opt/homebrew/bin/brew /usr/local/bin/brew /home/linuxbrew/.linuxbrew/bin/brew; do
+    [ -x "$_b" ] && { eval "$("$_b" shellenv)"; break; }
+  done
+  unset _b
+fi
+
 if [ "$_os" = "Darwin" ]; then
-  # Homebrew (Apple Silicon ou Intel)
-  if [ -x /opt/homebrew/bin/brew ]; then eval "$(/opt/homebrew/bin/brew shellenv)"
-  elif [ -x /usr/local/bin/brew ]; then eval "$(/usr/local/bin/brew shellenv)"; fi
   # Java: usa a versão pedida (padrão 17); se não existir, cai pra mais nova instalada
   JAVA_HOME="$(/usr/libexec/java_home -v "$JAVA_VERSION" 2>/dev/null)"
   [ -z "$JAVA_HOME" ] && JAVA_HOME="$(/usr/libexec/java_home 2>/dev/null)"
   export ANDROID_HOME="$HOME/Library/Android/sdk"
   export PNPM_HOME="$HOME/Library/pnpm"
 else
-  # Linux: Homebrew-on-Linux
-  if [ -x /home/linuxbrew/.linuxbrew/bin/brew ]; then
-    eval "$(/home/linuxbrew/.linuxbrew/bin/brew shellenv)"
-  fi
   if command -v brew >/dev/null 2>&1 && [ -d "$(brew --prefix "openjdk@${JAVA_VERSION}" 2>/dev/null)" ]; then
     JAVA_HOME="$(brew --prefix "openjdk@${JAVA_VERSION}")"
   elif [ -d "/usr/lib/jvm/java-${JAVA_VERSION}-openjdk-amd64" ]; then
@@ -37,15 +49,27 @@ else
   export PNPM_HOME="$HOME/.local/share/pnpm"
 fi
 
-[ -n "${JAVA_HOME:-}" ] && export JAVA_HOME && export PATH="$JAVA_HOME/bin:$PATH"
+[ -n "${JAVA_HOME:-}" ] && export JAVA_HOME && path_prepend "$JAVA_HOME/bin"
+
+# Android SDK
 export ANDROID_SDK_ROOT="$ANDROID_HOME"
+path_prepend "$ANDROID_HOME/emulator"
+path_prepend "$ANDROID_HOME/platform-tools"
+path_prepend "$ANDROID_HOME/cmdline-tools/latest/bin"
+
+# Node: nvm, pnpm, yarn, bun (nvm.sh e completions são carregados no ~/.zshrc)
 export NVM_DIR="$HOME/.nvm"
 export BUN_INSTALL="$HOME/.bun"
+path_prepend "$BUN_INSTALL/bin"
+path_prepend "$PNPM_HOME"
+path_prepend "$HOME/.yarn/bin"
+path_prepend "${XDG_CONFIG_HOME:-$HOME/.config}/yarn/global/node_modules/.bin"
+
 export LC_ALL="${LC_ALL:-en_US.UTF-8}"
 export REACT_NATIVE_NO_METRO_WINDOW=true
 
-# PATH: Android, bun, pnpm, local bin
-export PATH="$ANDROID_HOME/emulator:$ANDROID_HOME/platform-tools:$ANDROID_HOME/cmdline-tools/latest/bin:$PATH"
-export PATH="$BUN_INSTALL/bin:$PATH"
-case ":$PATH:" in *":$PNPM_HOME:"*) ;; *) export PATH="$PNPM_HOME:$PATH" ;; esac
-export PATH="$HOME/.local/bin:$PATH"
+# Por último: ~/.local/bin ganha prioridade. É onde vivem claude, uv e os
+# binários do pipx — deixar de fora foi o que sumiu com o Claude Code.
+path_prepend "$HOME/.local/bin"
+export PATH
+unset _os _shell_config_dir
