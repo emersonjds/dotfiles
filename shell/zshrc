@@ -1,5 +1,8 @@
-# ~/.zshrc — gerenciado pelo dotfiles (cópia, não symlink).
-# Editou no repo? rode ./install.sh --configs-only. Editou aqui? rode ./sync.sh.
+# ~/.zshrc — managed by dotfiles (copied, not symlinked).
+# Edited the repo? run ./install.sh --configs-only. Edited this file? run ./sync.sh.
+# Keeps PATH unique, including entries added later by nvm and friends.
+typeset -U path PATH
+
 export ZSH="$HOME/.oh-my-zsh"
 ZSH_THEME=""   # prompt vem do starship
 plugins=(git)
