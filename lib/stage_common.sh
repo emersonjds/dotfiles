@@ -73,9 +73,13 @@ install_ruby() {
 }
 
 install_bun() {
-  command_exists bun && return 0
-  log "Instalando Bun (latest)"
-  curl -fsSL https://bun.sh/install | bash || warn "falha ao instalar bun"
+  if command_exists bun; then
+    log "Bun: updating"
+    bun upgrade >/dev/null 2>&1 || warn "bun upgrade failed"
+    return 0
+  fi
+  log "Bun: installing"
+  curl -fsSL https://bun.sh/install | bash || warn "bun install failed"
 }
 
 install_npm_globals() {
