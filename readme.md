@@ -11,8 +11,8 @@ One command turns a bare **macOS**, **Debian / Ubuntu / Mint**, **Fedora** or **
 into a working dev machine: shell, SDKs, environment variables, editors and apps.
 
 ```bash
-git clone <this-repo> ~/Documents/workspace/dotfiles
-cd ~/Documents/workspace/dotfiles
+git clone <this-repo> ~/dotfiles
+cd ~/dotfiles
 ./install.sh
 ```
 
@@ -207,3 +207,6 @@ Shell changes: edit `shell/`, run `./install.sh --configs-only`, then `./doctor.
 ## License
 
 [MIT](LICENSE) — do whatever you want with it.
+
+Feel free to fork this project and adapt it to your own needs — swap tools, add
+your own configs, or strip out whatever doesn't fit your workflow.
