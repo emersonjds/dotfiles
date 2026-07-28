@@ -16,16 +16,19 @@ err()  { printf '%s[x]%s %s\n' "$_c_red" "$_c_reset" "$*" >&2; }
 
 command_exists() { command -v "$1" >/dev/null 2>&1; }
 
+# macos | debian | fedora | arch | unknown. ID_LIKE catches the derivatives
+# (Mint, Pop!_OS, Manjaro, Rocky) without listing every one of them.
 detect_os() {
-  case "$(uname -s)" in
-    Darwin) echo macos ;;
-    Linux)
-      if [ -r /etc/os-release ] && grep -qiE 'debian|ubuntu|mint' /etc/os-release; then
-        echo debian
-      else
-        echo unknown
-      fi
-      ;;
+  [ "$(uname -s)" = "Darwin" ] && { echo macos; return 0; }
+  [ "$(uname -s)" = "Linux" ] || { echo unknown; return 0; }
+  [ -r /etc/os-release ] || { echo unknown; return 0; }
+  local id id_like
+  id="$(. /etc/os-release && echo "${ID:-}")"
+  id_like="$(. /etc/os-release && echo "${ID_LIKE:-}")"
+  case "$id $id_like" in
+    *debian*|*ubuntu*|*linuxmint*) echo debian ;;
+    *fedora*|*rhel*|*centos*)      echo fedora ;;
+    *arch*)                        echo arch ;;
     *) echo unknown ;;
   esac
 }
