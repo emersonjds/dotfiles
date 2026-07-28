@@ -101,16 +101,16 @@ install_vscode_exts() {
   done < <(read_list "$DOTFILES_DIR/packages/vscode-extensions.txt")
 }
 
-install_ai_clis() {
-  # Claude Code + Copilot CLI já vêm via npm-global.txt. Aqui: extensão gh copilot.
-  if command_exists gh; then
-    if ! gh extension list 2>/dev/null | grep -q 'github/gh-copilot'; then
-      log "Instalando extensão gh copilot"
-      gh extension install github/gh-copilot >/dev/null 2>&1 || warn "gh copilot falhou (faça gh auth login antes)"
-    fi
-  else
-    warn "gh ausente; pulei extensão copilot"
+# Claude Code and Copilot CLI come from npm-global.txt; this is the gh extension.
+install_gh_copilot() {
+  command_exists gh || { warn "gh missing; skipped copilot extension"; return 0; }
+  if gh extension list 2>/dev/null | grep -q 'github/gh-copilot'; then
+    gh extension upgrade github/gh-copilot >/dev/null 2>&1 || true
+    return 0
   fi
+  log "gh copilot extension"
+  gh extension install github/gh-copilot >/dev/null 2>&1 \
+    || warn "gh copilot failed (run gh auth login first)"
 }
 
 set_default_shell() {
