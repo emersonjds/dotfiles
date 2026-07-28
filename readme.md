@@ -1,5 +1,12 @@
 # Dotfiles
 
+[![License: MIT](https://img.shields.io/badge/license-MIT-green.svg)](LICENSE)
+![macOS](https://img.shields.io/badge/macOS-supported-black?logo=apple&logoColor=white)
+![Debian/Ubuntu/Mint](https://img.shields.io/badge/Debian%2FUbuntu%2FMint-supported-A81D33?logo=debian&logoColor=white)
+![Fedora](https://img.shields.io/badge/Fedora-supported-51A2DA?logo=fedora&logoColor=white)
+![Arch](https://img.shields.io/badge/Arch-supported-1793D1?logo=archlinux&logoColor=white)
+![Shell](https://img.shields.io/badge/shell-bash%20%7C%20zsh-89e051?logo=gnubash&logoColor=white)
+
 One command turns a bare **macOS**, **Debian / Ubuntu / Mint**, **Fedora** or **Arch** box
 into a working dev machine: shell, SDKs, environment variables, editors and apps.
 
@@ -13,28 +20,28 @@ That is it. The OS is detected, everything else follows. Open a new terminal whe
 
 ## Commands
 
-| Command | What it does |
-|---|---|
-| `./install.sh` | Full setup: packages **and** configs. Safe to re-run at any time. |
-| `./install.sh --configs-only` | Push configs from the repo to the machine. Seconds, no package manager. |
-| `./sync.sh` | Pull back: machine configs and package lists into the repo. Review with `git diff`. |
-| `./doctor.sh` | Read-only health check. Runs automatically at the end of every install. |
+| Command                       | What it does                                                                        |
+| ----------------------------- | ----------------------------------------------------------------------------------- |
+| `./install.sh`                | Full setup: packages **and** configs. Safe to re-run at any time.                   |
+| `./install.sh --configs-only` | Push configs from the repo to the machine. Seconds, no package manager.             |
+| `./sync.sh`                   | Pull back: machine configs and package lists into the repo. Review with `git diff`. |
+| `./doctor.sh`                 | Read-only health check. Runs automatically at the end of every install.             |
 
 ## Nothing is ever reinstalled
 
 Every step is **install if missing, upgrade if present**. Running `./install.sh` on a
 fully configured machine installs nothing — it just brings things up to date.
 
-| Layer | Missing | Already there |
-|---|---|---|
-| Homebrew formulae, casks, fonts, Mac App Store | `brew bundle` installs it | `brew upgrade` |
-| Node | `nvm install --lts` | no-op when the latest LTS is current |
-| Ruby | rbenv builds the newest stable | kept, so no project breaks under you |
-| npm globals | `npm i -g pkg@latest` | same command upgrades it |
-| Bun | official installer | `bun upgrade` |
-| VS Code extensions | `--install-extension` | `--force` upgrades in place |
-| Oh My Zsh | official installer | `upgrade.sh` |
-| Configs | copied over | untouched when byte-identical |
+| Layer                                          | Missing                        | Already there                        |
+| ---------------------------------------------- | ------------------------------ | ------------------------------------ |
+| Homebrew formulae, casks, fonts, Mac App Store | `brew bundle` installs it      | `brew upgrade`                       |
+| Node                                           | `nvm install --lts`            | no-op when the latest LTS is current |
+| Ruby                                           | rbenv builds the newest stable | kept, so no project breaks under you |
+| npm globals                                    | `npm i -g pkg@latest`          | same command upgrades it             |
+| Bun                                            | official installer             | `bun upgrade`                        |
+| VS Code extensions                             | `--install-extension`          | `--force` upgrades in place          |
+| Oh My Zsh                                      | official installer             | `upgrade.sh`                         |
+| Configs                                        | copied over                    | untouched when byte-identical        |
 
 ## Installed is not the same as working
 
@@ -49,7 +56,7 @@ terminal gets. It checks:
 - all 42 expected CLIs resolve: node, npm, java, mvn, python3, ruby, cargo, flutter, dart,
   adb, psql, mysql, gh, docker, claude and the rest
 - `JAVA_HOME`, `ANDROID_HOME`, `ANDROID_SDK_ROOT`, `NVM_DIR`, `BUN_INSTALL`, `PNPM_HOME`
-  are exported *and* point at directories that exist
+  are exported _and_ point at directories that exist
 - `PATH` ordering, where it actually matters: `java` must come from `JAVA_HOME` and not
   from the `/usr/bin` stub, and no entry may appear twice
 - the Brewfile is satisfied, npm globals are present, VS Code extensions are installed
@@ -58,12 +65,12 @@ Non-zero exit when anything is off, so it works in a script too.
 
 ## Supported systems
 
-| System | Detected as | System base | GUI apps |
-|---|---|---|---|
-| macOS | `macos` | Homebrew | casks + Mac App Store |
-| Debian, Ubuntu, Mint, Pop!\_OS… | `debian` | `apt` | `.deb` + Flatpak |
-| Fedora, RHEL, Rocky, Alma | `fedora` | `dnf` | `.rpm` + Flatpak |
-| Arch, Manjaro, EndeavourOS | `arch` | `pacman` | Flatpak |
+| System                          | Detected as | System base | GUI apps              |
+| ------------------------------- | ----------- | ----------- | --------------------- |
+| macOS                           | `macos`     | Homebrew    | casks + Mac App Store |
+| Debian, Ubuntu, Mint, Pop!\_OS… | `debian`    | `apt`       | `.deb` + Flatpak      |
+| Fedora, RHEL, Rocky, Alma       | `fedora`    | `dnf`       | `.rpm` + Flatpak      |
+| Arch, Manjaro, EndeavourOS      | `arch`      | `pacman`    | Flatpak               |
 
 Derivatives are matched through `ID_LIKE` in `/etc/os-release`, so Mint and Pop!\_OS resolve
 to `debian` without being named. Only the system base and the GUI apps are distro-specific:
@@ -78,12 +85,12 @@ every time you open a terminal.
 
 So the repo is the **versioned** source, not the live one, and the flow runs both ways:
 
-| You edited | Run |
-|---|---|
-| the **repo** (`shell/`, `config/`, `git/`) | `./install.sh --configs-only` |
+| You edited                                        | Run                                     |
+| ------------------------------------------------- | --------------------------------------- |
+| the **repo** (`shell/`, `config/`, `git/`)        | `./install.sh --configs-only`           |
 | the **machine** (`~/.zshrc`, `~/.config/shell/…`) | `./sync.sh`, then `git diff` and commit |
 
-> Run `./sync.sh` *before* editing the repo, not after: it overwrites repo files with what
+> Run `./sync.sh` _before_ editing the repo, not after: it overwrites repo files with what
 > the machine has. Everything is versioned, so `git diff` always shows exactly what came back.
 
 Existing files are backed up to `*.bak.<timestamp>` before being replaced — one backup per
@@ -92,16 +99,16 @@ including the `*.bak.*` entries that are themselves symlinks into the repo.
 
 ### Repo → machine
 
-| Repo | Machine |
-|---|---|
-| `shell/zshrc` | `~/.zshrc` |
-| `shell/zprofile` | `~/.zprofile` (login shell: `brew shellenv` only) |
-| `shell/env.sh`, `aliases.sh`, `plugins.sh` | `~/.config/shell/` |
-| `git/gitconfig` | `~/.gitconfig` |
-| `config/starship.toml` | `~/.config/starship.toml` |
-| `config/zed/settings.json` | `~/.config/zed/settings.json` |
-| `config/vscode/settings.json` | `~/Library/Application Support/Code/User/` · `~/.config/Code/User/` |
-| `config/iterm2/emerson.json` | `~/Library/Application Support/iTerm2/DynamicProfiles/` |
+| Repo                                       | Machine                                                             |
+| ------------------------------------------ | ------------------------------------------------------------------- |
+| `shell/zshrc`                              | `~/.zshrc`                                                          |
+| `shell/zprofile`                           | `~/.zprofile` (login shell: `brew shellenv` only)                   |
+| `shell/env.sh`, `aliases.sh`, `plugins.sh` | `~/.config/shell/`                                                  |
+| `git/gitconfig`                            | `~/.gitconfig`                                                      |
+| `config/starship.toml`                     | `~/.config/starship.toml`                                           |
+| `config/zed/settings.json`                 | `~/.config/zed/settings.json`                                       |
+| `config/vscode/settings.json`              | `~/Library/Application Support/Code/User/` · `~/.config/Code/User/` |
+| `config/iterm2/emerson.json`               | `~/Library/Application Support/iTerm2/DynamicProfiles/`             |
 
 The map lives once, in `dotfiles_map()` (`lib/common.sh`): `install.sh` reads it going out,
 `sync.sh` reads it coming back. Version a new file by adding one line there.
@@ -143,14 +150,14 @@ eza and starship icons render.
 
 Set in `shell/env.sh`, resolved at runtime per OS:
 
-| Variable | macOS | Linux |
-|---|---|---|
-| `JAVA_HOME` | `java_home -v 17` | `brew --prefix openjdk@17` |
-| `ANDROID_HOME` / `ANDROID_SDK_ROOT` | `~/Library/Android/sdk` | `~/Android/Sdk` |
-| `NVM_DIR` · `BUN_INSTALL` | `~/.nvm` · `~/.bun` | same |
-| `PNPM_HOME` | `~/Library/pnpm` | `~/.local/share/pnpm` |
-| `RBENV_ROOT` · `PYENV_ROOT` | only when installed | only when installed |
-| `LC_ALL` | `en_US.UTF-8` | `en_US.UTF-8` |
+| Variable                            | macOS                   | Linux                      |
+| ----------------------------------- | ----------------------- | -------------------------- |
+| `JAVA_HOME`                         | `java_home -v 17`       | `brew --prefix openjdk@17` |
+| `ANDROID_HOME` / `ANDROID_SDK_ROOT` | `~/Library/Android/sdk` | `~/Android/Sdk`            |
+| `NVM_DIR` · `BUN_INSTALL`           | `~/.nvm` · `~/.bun`     | same                       |
+| `PNPM_HOME`                         | `~/Library/pnpm`        | `~/.local/share/pnpm`      |
+| `RBENV_ROOT` · `PYENV_ROOT`         | only when installed     | only when installed        |
+| `LC_ALL`                            | `en_US.UTF-8`           | `en_US.UTF-8`              |
 
 `PATH` also picks up Homebrew, the Android tools, bun, pnpm, yarn, Solana, JetBrains Toolbox
 and `~/.local/bin` — last, and therefore highest priority, because that is where `claude`,
@@ -162,19 +169,19 @@ already there, so re-sourcing `env.sh` never duplicates anything. `brew shellenv
 
 ## Layout
 
-| Path | Responsibility |
-|---|---|
-| `install.sh` | Entrypoint: detect OS, dispatch, run the common stage |
-| `sync.sh` | Machine → repo, for configs and package manifests |
-| `doctor.sh` | Health check, changes nothing |
-| `test.sh` | Self-check for `install_file`'s backup handling |
-| `lib/common.sh` | Helpers: logging, OS detection, `dotfiles_map`, `install_file` |
-| `lib/stage_common.sh` | Configs, Node, Ruby, bun, npm globals, VS Code extensions, default shell |
-| `macos/setup.sh` + `macos/Brewfile` | Homebrew install; the Brewfile is a snapshot of the machine |
-| `macos/terminal-setup.sh` | iTerm2 / Terminal.app fonts via plist — run with iTerm2 **closed** |
-| `linux/setup.sh` | apt / dnf / pacman base + Homebrew-on-Linux + Flatpak + PWA shortcuts |
-| `shell/`, `config/`, `git/` | The files that get copied to the machine |
-| `packages/` | `npm-global.txt`, `vscode-extensions.txt` |
+| Path                                | Responsibility                                                           |
+| ----------------------------------- | ------------------------------------------------------------------------ |
+| `install.sh`                        | Entrypoint: detect OS, dispatch, run the common stage                    |
+| `sync.sh`                           | Machine → repo, for configs and package manifests                        |
+| `doctor.sh`                         | Health check, changes nothing                                            |
+| `test.sh`                           | Self-check for `install_file`'s backup handling                          |
+| `lib/common.sh`                     | Helpers: logging, OS detection, `dotfiles_map`, `install_file`           |
+| `lib/stage_common.sh`               | Configs, Node, Ruby, bun, npm globals, VS Code extensions, default shell |
+| `macos/setup.sh` + `macos/Brewfile` | Homebrew install; the Brewfile is a snapshot of the machine              |
+| `macos/terminal-setup.sh`           | iTerm2 / Terminal.app fonts via plist — run with iTerm2 **closed**       |
+| `linux/setup.sh`                    | apt / dnf / pacman base + Homebrew-on-Linux + Flatpak + PWA shortcuts    |
+| `shell/`, `config/`, `git/`         | The files that get copied to the machine                                 |
+| `packages/`                         | `npm-global.txt`, `vscode-extensions.txt`                                |
 
 ## Maintenance
 
