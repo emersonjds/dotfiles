@@ -87,6 +87,7 @@ install_npm_globals() {
   command_exists npm || { warn "npm missing; skipped globals"; return 0; }
   local pkg
   log "npm globals"
+  # </dev/null: npm reads stdin and would eat the list being iterated.
   while read -r pkg; do
     npm install -g "$pkg@latest" >/dev/null 2>&1 </dev/null || warn "npm failed: $pkg"
   done < <(read_list "$DOTFILES_DIR/packages/npm-global.txt")
