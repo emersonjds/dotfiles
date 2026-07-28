@@ -1,5 +1,6 @@
 #!/usr/bin/env bash
-# Estágio comum aos dois SOs. Source após lib/common.sh.
+# Stage shared by both operating systems. Source after lib/common.sh.
+# Everything here is install-if-missing, upgrade-if-present.
 
 # Old-model symlinks pointed into the repo and turned into dangling files once it moved.
 # Backing one up produced a *.bak.* that is itself a symlink into the repo: drop those too.
@@ -116,22 +117,22 @@ install_gh_copilot() {
 set_default_shell() {
   local zsh_bin; zsh_bin="$(command -v zsh)"
   [ -z "$zsh_bin" ] && return 0
-  if [ "${SHELL:-}" != "$zsh_bin" ]; then
-    log "Definindo zsh como shell padrão (pode pedir senha)"
-    grep -qx "$zsh_bin" /etc/shells 2>/dev/null || \
-      echo "$zsh_bin" | sudo tee -a /etc/shells >/dev/null
-    chsh -s "$zsh_bin" || warn "chsh falhou; troque manualmente"
-  fi
+  [ "${SHELL:-}" = "$zsh_bin" ] && return 0
+  log "Setting zsh as the default shell (may ask for your password)"
+  grep -qx "$zsh_bin" /etc/shells 2>/dev/null || \
+    echo "$zsh_bin" | sudo tee -a /etc/shells >/dev/null
+  chsh -s "$zsh_bin" || warn "chsh failed; change it manually"
 }
 
 run_common_stage() {
   install_oh_my_zsh
   install_configs
   install_node
+  install_ruby
   install_bun
   install_npm_globals
   install_vscode_exts
-  install_ai_clis
+  install_gh_copilot
   set_default_shell
-  log "Estágio comum concluído"
+  log "Common stage done"
 }
