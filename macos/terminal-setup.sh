@@ -1,24 +1,22 @@
 #!/usr/bin/env bash
-# Ajustes de terminal que vivem em .plist (não dá pra versionar como arquivo de texto).
-# Rode com o iTerm2 FECHADO para os defaults não serem sobrescritos ao sair.
+# Terminal settings that live in .plist files and cannot be versioned as text.
+# Run with iTerm2 CLOSED, otherwise it overwrites these defaults on exit.
 set -euo pipefail
 
 FONT="JetBrainsMono Nerd Font Mono 14"
-PS_FONT="JetBrainsMonoNFM-Regular"   # nome PostScript (Terminal.app)
+PS_FONT="JetBrainsMonoNFM-Regular"   # PostScript name, required by Terminal.app
 ITERM_PLIST="$HOME/Library/Preferences/com.googlecode.iterm2.plist"
-EMERSON_GUID="emerson-tokyonight-2026"
+PROFILE_GUID="emerson-tokyonight-2026"
 
-# --- iTerm2: profile Emerson como padrão ---
-defaults write com.googlecode.iterm2 "Default Bookmark Guid" -string "$EMERSON_GUID"
+defaults write com.googlecode.iterm2 "Default Bookmark Guid" -string "$PROFILE_GUID"
 
-# --- iTerm2: blinda o profile "Default" (índice 0) com a Nerd Font ---
+# Pin the Nerd Font on iTerm2's built-in "Default" profile (index 0) as well.
 pb() { /usr/libexec/PlistBuddy -c "$1" "$ITERM_PLIST"; }
 pb "Set 'New Bookmarks':0:'Normal Font' '$FONT'"
 pb "Set 'New Bookmarks':0:'Non Ascii Font' '$FONT'"
 pb "Set 'New Bookmarks':0:'Use Non-ASCII Font' false" 2>/dev/null \
   || pb "Add 'New Bookmarks':0:'Use Non-ASCII Font' bool false"
 
-# --- Terminal.app: fonte do profile Basic (via AppleScript) ---
 osascript <<OSA
 tell application "Terminal"
     set font name of settings set "Basic" to "$PS_FONT"
@@ -26,4 +24,4 @@ tell application "Terminal"
 end tell
 OSA
 
-echo "ok — terminais ajustados (abra janelas novas para ver)."
+echo "done — open a new window to see it."
