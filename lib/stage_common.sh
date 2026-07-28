@@ -21,14 +21,13 @@ read_list() {
 }
 
 install_configs() {
-  log "Instalando configs (cópia para a máquina)"
+  log "Configs (copied to the machine)"
   clean_legacy_links
   mkdir -p "$SHELL_CONFIG_DIR"
   while IFS='|' read -r rel dest; do
     [ -n "$rel" ] || continue
     install_file "$DOTFILES_DIR/$rel" "$dest"
   done < <(dotfiles_map)
-  # Nada em $HOME aponta pro repo: apagar o repo não quebra o shell.
 }
 
 install_oh_my_zsh() {
