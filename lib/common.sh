@@ -1,11 +1,10 @@
 #!/usr/bin/env bash
-# Helpers compartilhados pelos instaladores. Source, não execute.
+# Shared helpers. Source this, don't execute it.
 
-# Raiz do repo (lib/ está um nível abaixo da raiz).
 DOTFILES_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
 export DOTFILES_DIR
 
-# Fragmentos de shell vivem aqui, fora do repo — apagar o repo não quebra o shell.
+# Shell fragments live outside the repo, so deleting the repo can't break the shell.
 SHELL_CONFIG_DIR="${XDG_CONFIG_HOME:-$HOME/.config}/shell"
 export SHELL_CONFIG_DIR
 
@@ -56,8 +55,7 @@ vscode_cli() {
   return 1
 }
 
-# Mapa único "caminho-no-repo|destino-na-máquina".
-# Fonte de verdade do install.sh (repo -> máquina) e do sync.sh (máquina -> repo).
+# Single "repo-path|machine-path" map: source of truth for install.sh and sync.sh.
 dotfiles_map() {
   local xdg="${XDG_CONFIG_HOME:-$HOME/.config}"
   cat <<EOF
@@ -80,21 +78,23 @@ EOF
   fi
 }
 
-# Copia src -> dest, com backup timestampado do que já existia.
-# Symlink no destino é resquício do modelo antigo (apontava pro repo): descarta.
+# A symlink at dest is a leftover of the old model (it pointed into the repo): drop it.
 install_file() {
   local src="$1" dest="$2"
-  [ -r "$src" ] || { warn "origem ausente, pulei: $src"; return 0; }
+  [ -r "$src" ] || { warn "missing source, skipped: $src"; return 0; }
   mkdir -p "$(dirname "$dest")"
   if [ -L "$dest" ]; then
-    warn "symlink legado removido: $dest"
+    warn "removed legacy symlink: $dest"
     rm -f "$dest"
   elif [ -e "$dest" ]; then
     cmp -s "$src" "$dest" && return 0
     local stamp; stamp="$(date +%Y%m%d%H%M%S)"
     warn "backup: $dest -> $dest.bak.$stamp"
     cp -p "$dest" "$dest.bak.$stamp"
+    # One backup is a safety net; a pile of them is clutter. Keep only the newest.
+    find "$(dirname "$dest")" -maxdepth 1 -name "$(basename "$dest").bak.*" \
+      ! -name "*.bak.$stamp" -delete 2>/dev/null || true
   fi
   cp -f "$src" "$dest"
-  log "copiado: $dest"
+  log "copied: $dest"
 }
