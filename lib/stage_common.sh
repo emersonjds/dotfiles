@@ -31,11 +31,15 @@ install_configs() {
 }
 
 install_oh_my_zsh() {
-  if [ ! -d "$HOME/.oh-my-zsh" ]; then
-    log "Instalando Oh My Zsh"
-    RUNZSH=no KEEP_ZSHRC=yes sh -c \
-      "$(curl -fsSL https://raw.githubusercontent.com/ohmyzsh/ohmyzsh/master/tools/install.sh)"
+  if [ -d "$HOME/.oh-my-zsh" ]; then
+    log "Oh My Zsh: updating"
+    ZSH="$HOME/.oh-my-zsh" sh "$HOME/.oh-my-zsh/tools/upgrade.sh" >/dev/null 2>&1 \
+      || warn "oh-my-zsh update failed"
+    return 0
   fi
+  log "Oh My Zsh: installing"
+  RUNZSH=no KEEP_ZSHRC=yes sh -c \
+    "$(curl -fsSL https://raw.githubusercontent.com/ohmyzsh/ohmyzsh/master/tools/install.sh)"
 }
 
 install_node() {
