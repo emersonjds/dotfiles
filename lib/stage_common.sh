@@ -55,6 +55,23 @@ install_node() {
   nvm alias default 'lts/*' >/dev/null
 }
 
+# Without a version installed, rbenv sits there inert and `ruby` silently falls back
+# to the system copy.
+install_ruby() {
+  command_exists rbenv || { warn "rbenv missing; skipped Ruby"; return 0; }
+  if [ -n "$(rbenv versions --bare 2>/dev/null)" ]; then
+    log "Ruby: $(rbenv global 2>/dev/null) already installed"
+    return 0
+  fi
+  local latest
+  latest="$(rbenv install -l 2>/dev/null | grep -E '^[0-9]+\.[0-9]+\.[0-9]+$' | tail -1)"
+  [ -n "$latest" ] || { warn "could not resolve a Ruby version; skipped"; return 0; }
+  log "Ruby: installing $latest (compiles, takes a few minutes)"
+  rbenv install -s "$latest" || { warn "ruby $latest failed to build"; return 0; }
+  rbenv global "$latest"
+  rbenv rehash
+}
+
 install_bun() {
   command_exists bun && return 0
   log "Instalando Bun (latest)"
