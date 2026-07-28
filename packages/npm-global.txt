@@ -1,9 +1,9 @@
-typescript
-eslint
-prettier
-firebase-tools
-@expo/cli
-react-devtools
-vercel
 @anthropic-ai/claude-code
+@expo/cli
 @github/copilot
+eslint
+firebase-tools
+prettier
+react-devtools
+typescript
+vercel

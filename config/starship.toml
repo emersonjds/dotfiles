@@ -1,4 +1,3 @@
-# Starship — prompt do zsh
 add_newline = true
 command_timeout = 1000
 
@@ -11,8 +10,8 @@ success_symbol = "[❯](bold green)"
 error_symbol = "[❯](bold red)"
 
 [directory]
-truncation_length = 0       # 0 = sem truncar (mostra o caminho inteiro)
-truncate_to_repo = false    # não encurta para o nome do repo
+truncation_length = 0       # 0 = show the full path
+truncate_to_repo = false
 style = "bold cyan"
 
 [git_branch]
