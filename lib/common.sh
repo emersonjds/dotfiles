@@ -43,6 +43,19 @@ brew_prefix() {
   fi
 }
 
+# VS Code CLI: stable or Insiders, PATH or app bundle.
+vscode_cli() {
+  local c
+  for c in code code-insiders; do
+    command_exists "$c" && { echo "$c"; return 0; }
+  done
+  for c in "/Applications/Visual Studio Code.app/Contents/Resources/app/bin/code" \
+           "/Applications/Visual Studio Code - Insiders.app/Contents/Resources/app/bin/code"; do
+    [ -x "$c" ] && { echo "$c"; return 0; }
+  done
+  return 1
+}
+
 # Mapa único "caminho-no-repo|destino-na-máquina".
 # Fonte de verdade do install.sh (repo -> máquina) e do sync.sh (máquina -> repo).
 dotfiles_map() {
