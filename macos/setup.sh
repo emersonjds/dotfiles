@@ -4,11 +4,11 @@ SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 # shellcheck source=../lib/common.sh
 source "$SCRIPT_DIR/../lib/common.sh"
 
-log "macOS: instalando Command Line Tools (se faltar)"
+log "Command Line Tools"
 xcode-select -p >/dev/null 2>&1 || xcode-select --install || true
 
 if ! command_exists brew; then
-  log "Instalando Homebrew"
+  log "Installing Homebrew"
   NONINTERACTIVE=1 /bin/bash -c \
     "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/HEAD/install.sh)"
 fi
@@ -17,14 +17,11 @@ eval "$("$(brew_prefix)/bin/brew" shellenv)"
 log "brew update"
 brew update
 
-# Taps de terceiros (supabase, ngrok) exigem "trust" no Homebrew atual.
-log "Confiando nas taps de terceiros"
-brew tap supabase/tap >/dev/null 2>&1 || true
-brew tap ngrok/ngrok  >/dev/null 2>&1 || true
-brew trust supabase/tap ngrok/ngrok >/dev/null 2>&1 || export HOMEBREW_NO_REQUIRE_TAP_TRUST=1
+# Only installs what is missing; third-party taps are trusted in the Brewfile itself.
+log "brew bundle"
+brew bundle --file="$SCRIPT_DIR/Brewfile" || warn "brew bundle had failures (continuing)"
 
-log "brew bundle (formulae + casks + fonts)"
-brew bundle --file="$SCRIPT_DIR/Brewfile" || warn "brew bundle teve falhas pontuais (continuando)"
+log "brew upgrade"
+brew upgrade || warn "brew upgrade had failures (continuing)"
 
-log "brew cleanup"
 brew cleanup || true
