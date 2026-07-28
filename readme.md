@@ -1,223 +1,185 @@
-# Dotfiles — Emerson Silva
+# Dotfiles
 
-Setup automatizado de uma máquina de desenvolvimento do zero. Um único comando
-deixa **macOS** ou **Linux** (Ubuntu / Debian / Linux Mint) com shell, SDKs,
-variáveis de ambiente e todos os apps de trabalho **prontos para uso**.
-
-- **Idempotente** — pode rodar de novo a qualquer momento; não duplica nem quebra.
-- **Não-interativo** — instala tudo de uma vez (só pede senha quando o sistema exige).
-- **Sempre a última versão estável** — nada de versão congelada. Java, Node, Python,
-  Rust etc. são resolvidos para o release mais novo no momento da instalação.
-- **Cross-platform real** — o mesmo shell e as mesmas CLIs nos dois mundos
-  (no Linux via Homebrew-on-Linux), então a experiência é idêntica.
-- **Instalação por cópia** — nada no `$HOME` aponta para dentro deste repo.
-  Apagar, mover ou renomear a pasta do repo **não quebra o shell**.
-
----
-
-## Como usar
-
-Em qualquer máquina nova (o repo pode ficar em qualquer pasta):
+One command turns a bare **macOS**, **Debian / Ubuntu / Mint**, **Fedora** or **Arch** box
+into a working dev machine: shell, SDKs, environment variables, editors and apps.
 
 ```bash
-git clone <url-deste-repo> ~/Documents/workspace/dotfiles
+git clone <this-repo> ~/Documents/workspace/dotfiles
 cd ~/Documents/workspace/dotfiles
 ./install.sh
 ```
 
-O `install.sh` detecta o sistema operacional sozinho e faz o resto. Ao terminar,
-abra um novo terminal (ou rode `exec zsh`).
+That is it. The OS is detected, everything else follows. Open a new terminal when it ends.
 
----
+## Commands
 
-## Cópia, não symlink
+| Command | What it does |
+|---|---|
+| `./install.sh` | Full setup: packages **and** configs. Safe to re-run at any time. |
+| `./install.sh --configs-only` | Push configs from the repo to the machine. Seconds, no package manager. |
+| `./sync.sh` | Pull back: machine configs and package lists into the repo. Review with `git diff`. |
+| `./doctor.sh` | Read-only health check. Runs automatically at the end of every install. |
 
-As configs são **copiadas** do repo para a máquina. O modelo antigo criava
-symlinks (`~/.zshrc` → `repo/shell/zshrc`) e tinha uma falha séria: bastava
-mover ou apagar a pasta do repo para **todo o shell morrer junto** — `PATH`
-quebrado, ferramentas sumidas, `claude` fora do ar. O repo virava dependência de
-runtime de uma coisa que precisa sempre funcionar.
+## Nothing is ever reinstalled
 
-Agora o repo é a **fonte versionada**, não a fonte viva. Em troca, o fluxo tem
-dois sentidos:
+Every step is **install if missing, upgrade if present**. Running `./install.sh` on a
+fully configured machine installs nothing — it just brings things up to date.
 
-| Você editou onde | O que rodar |
-|------------------|-------------|
-| No **repo** (`shell/`, `config/`, `git/`) | `./install.sh --configs-only` — recopia só as configs, sem mexer em pacotes |
-| Direto na **máquina** (`~/.zshrc`, `~/.config/shell/…`) | `./sync.sh` — traz de volta pro repo; revise com `git diff` e commite |
+| Layer | Missing | Already there |
+|---|---|---|
+| Homebrew formulae, casks, fonts, Mac App Store | `brew bundle` installs it | `brew upgrade` |
+| Node | `nvm install --lts` | no-op when the latest LTS is current |
+| Ruby | rbenv builds the newest stable | kept, so no project breaks under you |
+| npm globals | `npm i -g pkg@latest` | same command upgrades it |
+| Bun | official installer | `bun upgrade` |
+| VS Code extensions | `--install-extension` | `--force` upgrades in place |
+| Oh My Zsh | official installer | `upgrade.sh` |
+| Configs | copied over | untouched when byte-identical |
 
-`./install.sh` completo (com pacotes) continua valendo e é sempre seguro rodar
-de novo.
+## Installed is not the same as working
 
-> Rode `./sync.sh` **antes** de editar o repo, não depois — ele sobrescreve os
-> arquivos do repo com o que está na máquina. Como tudo é versionado, um
-> `git diff` mostra exatamente o que ele trouxe.
+A package manager can report success while the shell still cannot find the binary. So the
+install never ends at "packages installed": it copies the shell config and then verifies it.
 
-### Onde cada coisa é instalada
+`./doctor.sh` starts a login zsh from a **bare environment** — no inherited `PATH`, nothing
+carried over from the current session — which is the only way to see what a genuinely new
+terminal gets. It checks:
 
-| Repo | Máquina |
-|------|---------|
+- every config file, repo against machine, in both directions
+- all 42 expected CLIs resolve: node, npm, java, mvn, python3, ruby, cargo, flutter, dart,
+  adb, psql, mysql, gh, docker, claude and the rest
+- `JAVA_HOME`, `ANDROID_HOME`, `ANDROID_SDK_ROOT`, `NVM_DIR`, `BUN_INSTALL`, `PNPM_HOME`
+  are exported *and* point at directories that exist
+- `PATH` ordering, where it actually matters: `java` must come from `JAVA_HOME` and not
+  from the `/usr/bin` stub, and no entry may appear twice
+- the Brewfile is satisfied, npm globals are present, VS Code extensions are installed
+
+Non-zero exit when anything is off, so it works in a script too.
+
+## Supported systems
+
+| System | Detected as | System base | GUI apps |
+|---|---|---|---|
+| macOS | `macos` | Homebrew | casks + Mac App Store |
+| Debian, Ubuntu, Mint, Pop!\_OS… | `debian` | `apt` | `.deb` + Flatpak |
+| Fedora, RHEL, Rocky, Alma | `fedora` | `dnf` | `.rpm` + Flatpak |
+| Arch, Manjaro, EndeavourOS | `arch` | `pacman` | Flatpak |
+
+Derivatives are matched through `ID_LIKE` in `/etc/os-release`, so Mint and Pop!\_OS resolve
+to `debian` without being named. Only the system base and the GUI apps are distro-specific:
+every CLI comes from Homebrew on Linux, so the terminal is byte-identical everywhere.
+
+## Copies, not symlinks
+
+Configs are **copied** into place. The old model symlinked `~/.zshrc` into the repo, which
+meant moving or deleting the repo folder killed the entire shell: broken `PATH`, missing
+tools, no `claude`. A repo should not be a runtime dependency of the thing that has to work
+every time you open a terminal.
+
+So the repo is the **versioned** source, not the live one, and the flow runs both ways:
+
+| You edited | Run |
+|---|---|
+| the **repo** (`shell/`, `config/`, `git/`) | `./install.sh --configs-only` |
+| the **machine** (`~/.zshrc`, `~/.config/shell/…`) | `./sync.sh`, then `git diff` and commit |
+
+> Run `./sync.sh` *before* editing the repo, not after: it overwrites repo files with what
+> the machine has. Everything is versioned, so `git diff` always shows exactly what came back.
+
+Existing files are backed up to `*.bak.<timestamp>` before being replaced — one backup per
+file, the previous one is pruned — and leftover symlinks from the old model are removed,
+including the `*.bak.*` entries that are themselves symlinks into the repo.
+
+### Repo → machine
+
+| Repo | Machine |
+|---|---|
 | `shell/zshrc` | `~/.zshrc` |
-| `shell/zprofile` | `~/.zprofile` (login shell: só o `brew shellenv`) |
+| `shell/zprofile` | `~/.zprofile` (login shell: `brew shellenv` only) |
 | `shell/env.sh`, `aliases.sh`, `plugins.sh` | `~/.config/shell/` |
 | `git/gitconfig` | `~/.gitconfig` |
 | `config/starship.toml` | `~/.config/starship.toml` |
 | `config/zed/settings.json` | `~/.config/zed/settings.json` |
-| `config/vscode/settings.json` | `~/Library/Application Support/Code/User/` (macOS) ou `~/.config/Code/User/` |
-| `config/iterm2/emerson.json` | `~/Library/Application Support/iTerm2/DynamicProfiles/` (macOS) |
+| `config/vscode/settings.json` | `~/Library/Application Support/Code/User/` · `~/.config/Code/User/` |
+| `config/iterm2/emerson.json` | `~/Library/Application Support/iTerm2/DynamicProfiles/` |
 
-O `~/.zshrc` dá source de `~/.config/shell/*.sh` — caminho fixo da máquina,
-nunca do repo. Se um arquivo já existir no destino, ele vira `*.bak.<timestamp>`
-antes de ser substituído, então nada é perdido. Symlinks legados do modelo
-antigo são detectados e removidos automaticamente.
+The map lives once, in `dotfiles_map()` (`lib/common.sh`): `install.sh` reads it going out,
+`sync.sh` reads it coming back. Version a new file by adding one line there.
 
-### Versões
+## Versions
 
-A regra geral é **sempre a última estável**. A exceção é o **Java, fixado no 17**
-por padrão (estável para Android / React Native / Flutter) — definido em
-`shell/env.sh`. O `openjdk` latest também é instalado, então quando o mais novo
-estiver de boa com RN/Flutter basta trocar o `17` no `env.sh`.
-
-Para um override **só nesta máquina** (sem mexer no repo), crie
-`~/.config/shell/versions.env`, por exemplo:
+Always the latest stable, with one exception: **Java is pinned to 17**, the version Android,
+React Native and Flutter all agree on. To override on a single machine without touching the
+repo, create `~/.config/shell/versions.env`:
 
 ```bash
 JAVA_VERSION=21
 ```
 
----
+## What you get
 
-## O que é instalado e por quê
+**Terminal** — zsh + Oh My Zsh, starship prompt, autosuggestions, syntax highlighting,
+zoxide (`z partial-name`), fzf (Ctrl-R history, Ctrl-T files), eza, ripgrep, neovim.
 
-### Shell e produtividade no terminal
-| Ferramenta | Por quê |
-|------------|---------|
-| **zsh + Oh My Zsh** | shell padrão, com plugins e histórico melhorado |
-| **starship** | prompt rápido e informativo (substitui o tema do Oh My Zsh) |
-| **zsh-autosuggestions** | sugere comandos do histórico enquanto você digita |
-| **zsh-syntax-highlighting** | colore comandos válidos/inválidos em tempo real |
-| **zoxide** | `cd` inteligente (`z parte-do-nome` pula para pastas visitadas) |
-| **fzf** | busca fuzzy no histórico (Ctrl-R) e em arquivos (Ctrl-T) |
-| **eza** | `ls` moderno com ícones e info de git |
-| **ripgrep** | busca em arquivos absurdamente rápida |
-| **neovim** | editor de terminal |
+**Languages** — Node via nvm (latest LTS) with pnpm / yarn / bun, OpenJDK + Maven,
+Python + pipx, Rust, Ruby via rbenv.
 
-### Linguagens e runtimes (sempre o latest estável)
-| Ferramenta | Por quê |
-|------------|---------|
-| **Node (via nvm, último LTS)** | runtime JS/TS; nvm permite trocar de versão por projeto |
-| **pnpm / yarn / bun** | gerenciadores de pacote / runtime JS rápido |
-| **OpenJDK + Maven** | desenvolvimento Java/Android |
-| **Python + pipx** | scripts e ferramentas Python isoladas |
-| **Rust (rustup)** | toolchain Rust |
-| **Ruby (rbenv)** | Ruby por projeto (CocoaPods etc.) |
+**Mobile** — Flutter, Android cmdline-tools and platform-tools, watchman, adb-enhanced,
+kdoctor, CocoaPods (macOS), ngrok.
 
-### Mobile / React Native / Flutter
-| Ferramenta | Por quê |
-|------------|---------|
-| **Flutter** | apps Flutter (canal stable) |
-| **Android cmdline-tools + platform-tools** | SDK Android, `adb`, emulador |
-| **watchman** | file watching usado pelo React Native / Metro |
-| **adb-enhanced, kdoctor** | utilidades Android e diagnóstico de ambiente Flutter |
-| **CocoaPods** (macOS) | dependências iOS |
-| **ngrok** | túneis para testar webhooks/dispositivos |
+**AI CLIs** — Claude Code, GitHub Copilot CLI plus the `gh copilot` extension, opencode.
 
-### AI / CLIs de desenvolvimento
-| Ferramenta | Por quê |
-|------------|---------|
-| **Claude Code** (`claude`) | assistente de código no terminal |
-| **GitHub Copilot CLI** (`@github/copilot` + extensão `gh copilot`) | sugestões de comando/código via GitHub |
-| **gh** | CLI do GitHub (PRs, issues, releases) |
+**Data & containers** — PostgreSQL, MySQL, Docker, DBeaver, MongoDB Compass, Supabase CLI.
 
-### Banco de dados / backend / containers
-| Ferramenta | Por quê |
-|------------|---------|
-| **PostgreSQL** | banco de dados relacional (latest estável) |
-| **Docker + Docker Compose** | containers (Docker Desktop no macOS; Docker Engine + plugin Compose no Linux) |
-| **DBeaver** | cliente SQL universal |
-| **MongoDB Compass** | GUI do MongoDB |
-| **Supabase CLI** | desenvolvimento local com Supabase |
+**Apps** — VS Code, Zed, iTerm2, Ghostty, Obsidian, Bruno, Chrome, Discord, WhatsApp,
+Notion, Outlook, LibreOffice. On Linux, apps without a decent native package (WhatsApp,
+Notion, Outlook) become Chrome PWA `.desktop` shortcuts; the rest come from official repos
+or Flatpak.
 
-### Aplicativos GUI
-VSCode, Zed, iTerm2 (macOS), Obsidian, Bruno (cliente de API), Google Chrome,
-Discord, WhatsApp, Notion, Microsoft Outlook, LibreOffice.
+**Fonts** — JetBrains Mono Nerd Font, Cascadia Code, Inter. The Nerd Font is what makes
+eza and starship icons render.
 
-No **Linux**, apps sem pacote nativo decente (WhatsApp, Notion, Outlook) são
-criados como **PWAs do Chrome** (atalhos `.desktop` em modo app) — funcionam como
-janelas dedicadas. Os demais vêm de repositório oficial ou Flatpak.
+## Environment
 
-### Fontes
-JetBrains Mono Nerd Font, Cascadia Code e Inter (a Nerd Font garante os ícones
-do eza/starship no terminal).
+Set in `shell/env.sh`, resolved at runtime per OS:
 
----
-
-## Variáveis de ambiente configuradas
-
-Definidas em `shell/env.sh` (instalado em `~/.config/shell/env.sh`), resolvidas
-dinamicamente conforme o SO:
-
-| Variável | macOS | Linux |
-|----------|-------|-------|
-| `JAVA_HOME` | JDK 17 por padrão (`java_home -v 17`) | `brew --prefix openjdk@17` |
+| Variable | macOS | Linux |
+|---|---|---|
+| `JAVA_HOME` | `java_home -v 17` | `brew --prefix openjdk@17` |
 | `ANDROID_HOME` / `ANDROID_SDK_ROOT` | `~/Library/Android/sdk` | `~/Android/Sdk` |
-| `NVM_DIR` | `~/.nvm` | `~/.nvm` |
-| `BUN_INSTALL` | `~/.bun` | `~/.bun` |
+| `NVM_DIR` · `BUN_INSTALL` | `~/.nvm` · `~/.bun` | same |
 | `PNPM_HOME` | `~/Library/pnpm` | `~/.local/share/pnpm` |
-| `RBENV_ROOT` | `~/.rbenv` (só se o rbenv existir) | idem |
-| `PYENV_ROOT` | `~/.pyenv` (só se o pyenv existir) | idem |
+| `RBENV_ROOT` · `PYENV_ROOT` | only when installed | only when installed |
 | `LC_ALL` | `en_US.UTF-8` | `en_US.UTF-8` |
-| `REACT_NATIVE_NO_METRO_WINDOW` | `true` | `true` |
 
-Toolchains inicializados quando presentes: **rbenv** (`rbenv init`), **cargo**
-(`~/.cargo/env` ou `~/.cargo/bin`), **pyenv** (só se instalado de verdade — com
-o Python do brew ele atrapalha). `pipx` e `uv` caem em `~/.local/bin`.
+`PATH` also picks up Homebrew, the Android tools, bun, pnpm, yarn, Solana, JetBrains Toolbox
+and `~/.local/bin` — last, and therefore highest priority, because that is where `claude`,
+`uv` and the pipx binaries live.
 
-O `PATH` recebe ainda: Homebrew, Android (emulator / platform-tools /
-cmdline-tools), `bun`, `pnpm`, `yarn`, Solana, JetBrains Toolbox e
-`~/.local/bin` — que fica por último, com a maior prioridade, porque é onde
-vivem `claude` e `uv`.
+Every entry goes through `path_prepend`, which adds a directory only if it exists and is not
+already there, so re-sourcing `env.sh` never duplicates anything. `brew shellenv` runs in
+`~/.zprofile` only; `env.sh` calls it solely as a fallback when `brew` is off `PATH`.
 
-Todas as entradas passam por `path_prepend`, que só adiciona se o diretório
-existir e ainda não estiver no `PATH`. Dar `source` no `env.sh` várias vezes
-não duplica nada.
+## Layout
 
-O `brew shellenv` roda **só no `~/.zprofile`** (login shell). O `env.sh` só
-o chama como rede de segurança se o `brew` não estiver no `PATH`.
+| Path | Responsibility |
+|---|---|
+| `install.sh` | Entrypoint: detect OS, dispatch, run the common stage |
+| `sync.sh` | Machine → repo, for configs and package manifests |
+| `doctor.sh` | Health check, changes nothing |
+| `test.sh` | Self-check for `install_file`'s backup handling |
+| `lib/common.sh` | Helpers: logging, OS detection, `dotfiles_map`, `install_file` |
+| `lib/stage_common.sh` | Configs, Node, Ruby, bun, npm globals, VS Code extensions, default shell |
+| `macos/setup.sh` + `macos/Brewfile` | Homebrew install; the Brewfile is a snapshot of the machine |
+| `macos/terminal-setup.sh` | iTerm2 / Terminal.app fonts via plist — run with iTerm2 **closed** |
+| `linux/setup.sh` | apt / dnf / pacman base + Homebrew-on-Linux + Flatpak + PWA shortcuts |
+| `shell/`, `config/`, `git/` | The files that get copied to the machine |
+| `packages/` | `npm-global.txt`, `vscode-extensions.txt` |
 
----
+## Maintenance
 
-## Estrutura do repositório
+Install what you want with `brew`, `npm i -g` or the VS Code UI, then run `./sync.sh` — the
+Brewfile and the package lists catch up on their own. The package lists only ever grow, so a
+tool missing from one machine never drops it from the repo.
 
-| Caminho | Responsabilidade |
-|---------|------------------|
-| `install.sh` | Entrypoint: detecta o SO, despacha e roda o estágio comum (`--configs-only` pula os pacotes) |
-| `sync.sh` | Caminho de volta: copia as configs da máquina para o repo |
-| `lib/common.sh` | Helpers (log, detecção de SO, `dotfiles_map`, `install_file`, prefixo do brew) |
-| `lib/stage_common.sh` | Cópia das configs + Node LTS + bun + npm globals + extensões VSCode + shell |
-| `macos/setup.sh` + `macos/Brewfile` | Instalação no macOS via Homebrew (formulae + casks + fonts) |
-| `linux/setup.sh` | Instalação no Linux (apt + Homebrew-on-Linux + Flatpak + PWAs) |
-| `shell/` | `zshrc`, `zprofile`, `env.sh`, `aliases.sh`, `plugins.sh` |
-| `config/` | `starship.toml`, `zed/settings.json`, `vscode/settings.json`, `iterm2/emerson.json` |
-| `macos/terminal-setup.sh` | ajustes de fonte (Nerd Font) do iTerm2/Terminal.app via plist — rode com o iTerm2 **fechado** |
-| `git/gitconfig` | identidade e padrões do git |
-| `packages/` | manifestos: `npm-global.txt`, `vscode-extensions.txt` |
-
-O mapa repo → máquina fica em `dotfiles_map()` (`lib/common.sh`), em um lugar
-só: o `install.sh` lê na ida e o `sync.sh` na volta. Para versionar um arquivo
-novo, acrescente uma linha lá.
-
----
-
-## Manutenção
-
-- **Adicionar um pacote CLI/app:** edite `macos/Brewfile` (e, se for GUI no Linux,
-  ajuste `linux/setup.sh`).
-- **Adicionar um pacote npm global:** acrescente uma linha em `packages/npm-global.txt`.
-- **Adicionar uma extensão do VSCode:** acrescente o id em `packages/vscode-extensions.txt`
-  (ou rode `code --list-extensions > packages/vscode-extensions.txt` para sincronizar).
-- **Mudar config de shell:** edite os arquivos em `shell/` e rode
-  `./install.sh --configs-only` para aplicar. Se editou direto na máquina,
-  rode `./sync.sh` para trazer de volta.
-
-Depois de qualquer mudança, rodar `./install.sh` de novo é seguro.
+Shell changes: edit `shell/`, run `./install.sh --configs-only`. Then `./doctor.sh`.
