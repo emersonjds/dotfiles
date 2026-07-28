@@ -92,13 +92,13 @@ install_npm_globals() {
 }
 
 install_vscode_exts() {
-  command_exists code || { warn "code CLI ausente; pulei extensões"; return 0; }
-  log "Instalando extensões VSCode"
+  local cli ext
+  cli="$(vscode_cli)" || { warn "VS Code CLI missing; skipped extensions"; return 0; }
+  log "VS Code extensions"
   while read -r ext; do
-    [ -z "$ext" ] && continue
-    case "$ext" in \#*) continue ;; esac
-    code --install-extension "$ext" --force >/dev/null 2>&1 || warn "falhou: $ext"
-  done < "$DOTFILES_DIR/packages/vscode-extensions.txt"
+    "$cli" --install-extension "$ext" --force >/dev/null 2>&1 </dev/null \
+      || warn "extension failed: $ext"
+  done < <(read_list "$DOTFILES_DIR/packages/vscode-extensions.txt")
 }
 
 install_ai_clis() {
