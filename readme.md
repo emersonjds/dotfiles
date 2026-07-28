@@ -11,8 +11,8 @@ One command turns a bare **macOS**, **Debian / Ubuntu / Mint**, **Fedora** or **
 into a working dev machine: shell, SDKs, environment variables, editors and apps.
 
 ```bash
-git clone <this-repo> ~/Documents/workspace/dotfiles
-cd ~/Documents/workspace/dotfiles
+git clone <this-repo> ~/dotfiles
+cd ~/dotfiles
 ./install.sh
 ```
 
