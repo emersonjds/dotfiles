@@ -1,7 +1,6 @@
-# ~/.zprofile — gerenciado pelo dotfiles (cópia, não symlink).
-# Só o que é de login shell. O resto do ambiente está em ~/.config/shell/env.sh.
+# ~/.zprofile — managed by dotfiles (copied, not symlinked).
+# Login-shell only. The rest of the environment lives in ~/.config/shell/env.sh.
 
-# Homebrew: aqui e só aqui. O env.sh só chama de novo se o brew não estiver no PATH.
 if [ -x /opt/homebrew/bin/brew ]; then
   eval "$(/opt/homebrew/bin/brew shellenv)"
 elif [ -x /usr/local/bin/brew ]; then

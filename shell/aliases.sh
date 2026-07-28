@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-# Aliases cross-platform.
+# Cross-platform aliases.
 
 alias pip="pip3"
 
