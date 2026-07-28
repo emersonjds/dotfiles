@@ -12,6 +12,7 @@ log "Dotfiles: $DOTFILES_DIR"
 if [ "${1:-}" = "--configs-only" ]; then
   install_configs
   log "Configs applied. Open a new terminal (or run: exec zsh)."
+  bash "$SCRIPT_DIR/doctor.sh" || true
   exit 0
 fi
 
@@ -25,5 +26,8 @@ case "$os" in
 esac
 
 run_common_stage
+
+log "Verifying the shell environment"
+bash "$SCRIPT_DIR/doctor.sh" || true
 
 log "Done. Open a new terminal (or run: exec zsh)."
