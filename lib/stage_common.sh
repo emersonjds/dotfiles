@@ -1,14 +1,23 @@
 #!/usr/bin/env bash
 # Estágio comum aos dois SOs. Source após lib/common.sh.
 
-# Symlinks do modelo antigo apontavam pro repo e viravam lixo quebrado ao movê-lo.
+# Old-model symlinks pointed into the repo and turned into dangling files once it moved.
+# Backing one up produced a *.bak.* that is itself a symlink into the repo: drop those too.
 clean_legacy_links() {
-  local n=0 f
-  while IFS= read -r f; do
-    rm -f "$f"; n=$((n + 1))
-  done < <(find "$HOME" -maxdepth 1 -name '*.bak.*' -type l 2>/dev/null)
-  [ "$n" -gt 0 ] && log "removidos $n backups legados que eram symlink"
+  local n=0 dest f
+  while IFS='|' read -r _ dest; do
+    [ -n "$dest" ] || continue
+    while IFS= read -r f; do
+      rm -f "$f"; n=$((n + 1))
+    done < <(find "$(dirname "$dest")" -maxdepth 1 -type l \
+               -name "$(basename "$dest").bak.*" 2>/dev/null)
+  done < <(dotfiles_map)
+  [ "$n" -gt 0 ] && log "removed $n legacy symlink backups"
   return 0
+}
+
+read_list() {
+  grep -vE '^[[:space:]]*(#|$)' "$1" 2>/dev/null || true
 }
 
 install_configs() {
