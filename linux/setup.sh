@@ -90,7 +90,13 @@ log "brew: formulae from the Brewfile"
 grep -E '^brew ' "$SCRIPT_DIR/../macos/Brewfile" \
   | sed -E 's/^brew "([^"]+)".*/\1/' \
   | grep -vE '^(cocoapods|mas)$' \
-  | while read -r f; do brew list "$f" >/dev/null 2>&1 || brew install "$f" || warn "brew failed: $f"; done
+  | while read -r f; do
+      if brew list "$f" >/dev/null 2>&1; then
+        brew upgrade "$f" >/dev/null 2>&1 || true
+      else
+        brew install "$f" || warn "brew failed: $f"
+      fi
+    done
 
 log "GUI apps"
 install_chrome || warn "Chrome failed"
@@ -108,14 +114,18 @@ for app in \
   org.libreoffice.LibreOffice ; do
   flatpak install -y --noninteractive flathub "$app" || warn "flatpak failed: $app"
 done
+flatpak update -y --noninteractive || true
 
+# WhatsApp, Notion and Outlook have no Linux app: browser --app shortcuts instead.
 log "PWA shortcuts"
+browser="google-chrome"
+command_exists google-chrome || browser="flatpak run org.chromium.Chromium"
 mkdir -p "$HOME/.local/share/applications"
 make_pwa() {
   cat > "$HOME/.local/share/applications/$3.desktop" <<EOF
 [Desktop Entry]
 Name=$1
-Exec=google-chrome --app=$2
+Exec=$browser --app=$2
 Type=Application
 Icon=google-chrome
 Categories=Network;
