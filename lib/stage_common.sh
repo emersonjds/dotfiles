@@ -83,13 +83,12 @@ install_bun() {
 }
 
 install_npm_globals() {
-  command_exists npm || { warn "npm ausente; pulei globals"; return 0; }
-  log "Instalando npm globals"
+  command_exists npm || { warn "npm missing; skipped globals"; return 0; }
+  local pkg
+  log "npm globals"
   while read -r pkg; do
-    [ -z "$pkg" ] && continue
-    case "$pkg" in \#*) continue ;; esac
-    npm ls -g "$pkg" >/dev/null 2>&1 || npm install -g "$pkg"
-  done < "$DOTFILES_DIR/packages/npm-global.txt"
+    npm install -g "$pkg@latest" >/dev/null 2>&1 </dev/null || warn "npm failed: $pkg"
+  done < <(read_list "$DOTFILES_DIR/packages/npm-global.txt")
 }
 
 install_vscode_exts() {
