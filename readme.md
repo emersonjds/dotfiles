@@ -183,10 +183,27 @@ already there, so re-sourcing `env.sh` never duplicates anything. `brew shellenv
 | `shell/`, `config/`, `git/`         | The files that get copied to the machine                                 |
 | `packages/`                         | `npm-global.txt`, `vscode-extensions.txt`                                |
 
-## Maintenance
+## Adding or removing packages
 
-Install what you want with `brew`, `npm i -g` or the VS Code UI, then run `./sync.sh` — the
-Brewfile and the package lists catch up on their own. The package lists only ever grow, so a
-tool missing from one machine never drops it from the repo.
+Never edit the Brewfile or the `packages/*.txt` files by hand. Install or remove on the
+machine, then let `./sync.sh` write the repo:
 
-Shell changes: edit `shell/`, run `./install.sh --configs-only`. Then `./doctor.sh`.
+| You want to             | Do this                                                                                | Then run        |
+| ----------------------- | -------------------------------------------------------------------------------------- | --------------- |
+| Add a CLI / SDK         | `brew install <formula>`                                                               | `./sync.sh`     |
+| Add a GUI app (macOS)   | `brew install --cask <app>`                                                            | `./sync.sh`     |
+| Add a Mac App Store app | `mas install <id>` (find the id with `mas search <name>`)                              | `./sync.sh`     |
+| Add an npm global       | `npm install -g <pkg>`                                                                 | `./sync.sh`     |
+| Add a VS Code extension | install it from the UI or `code --install-extension <id>`                              | `./sync.sh`     |
+| Remove any of the above | uninstall it on the machine, then delete its line from the Brewfile / `packages/*.txt` | commit the diff |
+
+`sync.sh` dumps the current state of Homebrew, npm and VS Code and merges it into the repo.
+Package lists only ever grow from a merge — a tool missing from one machine never drops it
+from the repo — so removals are the one thing you still edit by hand. Review with `git diff`
+before committing either way.
+
+Shell changes: edit `shell/`, run `./install.sh --configs-only`, then `./doctor.sh`.
+
+## License
+
+[MIT](LICENSE) — do whatever you want with it.
