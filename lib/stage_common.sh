@@ -49,13 +49,10 @@ install_node() {
   [ -s "$(brew_prefix)/opt/nvm/nvm.sh" ] && . "$(brew_prefix)/opt/nvm/nvm.sh"
   # shellcheck disable=SC1091
   [ -s "$NVM_DIR/nvm.sh" ] && . "$NVM_DIR/nvm.sh"
-  if command_exists nvm; then
-    log "Instalando Node LTS (latest)"
-    nvm install --lts
-    nvm alias default 'lts/*'
-  else
-    warn "nvm indisponível; pulei Node"
-  fi
+  command_exists nvm || { warn "nvm unavailable; skipped Node"; return 0; }
+  log "Node: latest LTS"
+  nvm install --lts
+  nvm alias default 'lts/*' >/dev/null
 }
 
 install_bun() {
