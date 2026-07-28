@@ -12,6 +12,7 @@ _c_reset=$'\033[0m'; _c_blue=$'\033[34m'; _c_yellow=$'\033[33m'; _c_red=$'\033[3
 log()  { printf '%s==>%s %s\n' "$_c_blue" "$_c_reset" "$*"; }
 warn() { printf '%s[!]%s %s\n' "$_c_yellow" "$_c_reset" "$*" >&2; }
 err()  { printf '%s[x]%s %s\n' "$_c_red" "$_c_reset" "$*" >&2; }
+ok()   { printf '  %s✓%s %s\n' "$_c_blue" "$_c_reset" "$*"; }
 
 command_exists() { command -v "$1" >/dev/null 2>&1; }
 
