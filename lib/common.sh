@@ -42,7 +42,6 @@ brew_prefix() {
   fi
 }
 
-# VS Code CLI: stable or Insiders, PATH or app bundle.
 vscode_cli() {
   local c
   for c in code code-insiders; do
