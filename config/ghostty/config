@@ -1,0 +1,42 @@
+# ~/.config/ghostty/config — managed by dotfiles (copied, not symlinked).
+# Edited the repo? run ./install.sh --configs-only. Edited this file? run ./sync.sh.
+#
+# A port of config/iterm2/emerson.json, so the terminal looks the same on both machines.
+# The colours are written out rather than pulled from a built-in theme name: the palette
+# is the source of truth here, and it cannot drift when a theme is renamed upstream.
+# It is Tokyo Night Storm.
+
+font-family = JetBrainsMono Nerd Font Mono
+font-size = 14
+
+# iTerm2 profile used vertical spacing 1.1; this is the same 10% of extra line height.
+adjust-cell-height = 10%
+
+background = #24283b
+foreground = #c0caf5
+cursor-color = #c0caf5
+selection-background = #394268
+selection-foreground = #c0caf5
+
+cursor-style = block
+mouse-hide-while-typing = true
+window-padding-x = 8
+window-padding-y = 6
+confirm-close-surface = false
+
+palette = 0=#1d202f
+palette = 1=#f7768e
+palette = 2=#9ece6a
+palette = 3=#e0af68
+palette = 4=#7aa2f7
+palette = 5=#bb9af7
+palette = 6=#7dcfff
+palette = 7=#a9b1d6
+palette = 8=#414868
+palette = 9=#f7768e
+palette = 10=#9ece6a
+palette = 11=#e0af68
+palette = 12=#7aa2f7
+palette = 13=#bb9af7
+palette = 14=#7dcfff
+palette = 15=#c0caf5
