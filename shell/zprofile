@@ -1,10 +1,7 @@
 # ~/.zprofile — managed by dotfiles (copied, not symlinked).
 # Login-shell only. The rest of the environment lives in ~/.config/shell/env.sh.
 
-if [ -x /opt/homebrew/bin/brew ]; then
-  eval "$(/opt/homebrew/bin/brew shellenv)"
-elif [ -x /usr/local/bin/brew ]; then
-  eval "$(/usr/local/bin/brew shellenv)"
-elif [ -x /home/linuxbrew/.linuxbrew/bin/brew ]; then
-  eval "$(/home/linuxbrew/.linuxbrew/bin/brew shellenv)"
-fi
+# Where Homebrew lives is decided in one file, shared with env.sh and ~/.bashrc.
+_shell_config_dir="${XDG_CONFIG_HOME:-$HOME/.config}/shell"
+[ -r "$_shell_config_dir/brew.sh" ] && . "$_shell_config_dir/brew.sh"
+unset _shell_config_dir
