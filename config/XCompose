@@ -1,0 +1,16 @@
+# ~/.XCompose — managed by dotfiles (copied, not symlinked).
+# Edited the repo? run ./install.sh --configs-only. Edited this file? run ./sync.sh.
+#
+# Keep everything the current locale already defines, then override below.
+include "%L"
+
+# The us(intl) layout sends dead_acute, and the system Compose table resolves
+# <dead_acute> <c> to ć (c with acute) — correct for Polish, useless for Portuguese.
+# macOS gives ç for the same keystroke, so restore that. This is a Compose rule rather
+# than an XKB one on purpose: it survives a locale change and needs no root.
+<dead_acute> <c>            : "ç"   ccedilla
+<dead_acute> <C>            : "Ç"   Ccedilla
+
+# The cedilla is a diacritic of its own, so accept the explicit spelling too.
+<dead_cedilla> <c>          : "ç"   ccedilla
+<dead_cedilla> <C>          : "Ç"   Ccedilla
