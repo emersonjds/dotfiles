@@ -13,8 +13,32 @@ source "$SCRIPT_DIR/../lib/common.sh"
 
 SYSCTL_FILE=/etc/sysctl.d/99-dotfiles-dev.conf
 
+# --- desktop ----------------------------------------------------------------------
+# Animations are latency you agreed to. Every window open, menu and workspace switch
+# waits out its transition before the thing you asked for appears — small, but paid on
+# every single interaction. On a work machine the snappier default is the better one.
+if command_exists gsettings; then
+  for key in desktop-effects desktop-effects-on-menus desktop-effects-on-dialogs \
+             desktop-effects-change-size desktop-effects-workspace startup-animation; do
+    gsettings set org.cinnamon "$key" false 2>/dev/null || true
+  done
+  # GTK's own animations are a separate switch, and toolkit-wide rather than Cinnamon's.
+  gsettings set org.cinnamon.desktop.interface enable-animations false 2>/dev/null || true
+  ok "desktop animations off"
+fi
+
+# --- power ------------------------------------------------------------------------
+# intel_pstate parks the cores well below their turbo range under the balanced profile.
+# No root needed: power-profiles-daemon authorises the active session through polkit.
+if command_exists powerprofilesctl; then
+  powerprofilesctl set performance 2>/dev/null \
+    && ok "power profile: performance (persists across reboots)" \
+    || warn "could not set the power profile"
+fi
+
+# Everything below writes outside $HOME.
 if ! sudo -n true 2>/dev/null && [ ! -w /etc/sysctl.d ]; then
-  warn "performance tuning needs sudo; run ./linux/performance.sh directly"
+  warn "kernel and service tuning need sudo; run ./linux/performance.sh directly"
   exit 0
 fi
 
@@ -43,14 +67,6 @@ fs.inotify.max_user_instances = 1024
 EOF
 sudo sysctl -q --system >/dev/null 2>&1 || warn "could not reload sysctl"
 ok "swappiness=$(cat /proc/sys/vm/swappiness) watches=$(cat /proc/sys/fs/inotify/max_user_watches)"
-
-# --- power ------------------------------------------------------------------------
-# intel_pstate parks the cores well below their turbo range under the balanced profile.
-if command_exists powerprofilesctl; then
-  powerprofilesctl set performance 2>/dev/null \
-    && ok "power profile: performance (persists across reboots)" \
-    || warn "could not set the power profile"
-fi
 
 # --- services ---------------------------------------------------------------------
 # Only ever disabled when the thing they serve is not present.

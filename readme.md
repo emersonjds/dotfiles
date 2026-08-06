@@ -282,6 +282,12 @@ is not present. None of it is a benchmark trick:
   changes rather than as an error.
 - **Power profile `performance`** — `intel_pstate` parks the cores well below their turbo
   range under the balanced profile.
+- **Desktop animations off** — animations are latency you agreed to: every window open,
+  menu and workspace switch waits out its transition before the thing you asked for
+  appears. Small each time, paid on every interaction.
+
+The desktop and power settings need no root and are applied first, so the script still
+does something useful when run without sudo.
 
 Services are disabled only when the thing they serve is absent: cups when no printer is
 configured, ModemManager when there is no WWAN hardware, `NetworkManager-wait-online`
