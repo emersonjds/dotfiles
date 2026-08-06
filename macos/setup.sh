@@ -7,12 +7,14 @@ source "$SCRIPT_DIR/../lib/common.sh"
 log "Command Line Tools"
 xcode-select -p >/dev/null 2>&1 || xcode-select --install || true
 
-if ! command_exists brew; then
+if load_brew; then
+  log "Homebrew: already installed ($(brew --prefix))"
+else
   log "Installing Homebrew"
   NONINTERACTIVE=1 /bin/bash -c \
     "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/HEAD/install.sh)"
+  load_brew || { err "Homebrew install failed"; exit 1; }
 fi
-eval "$("$(brew_prefix)/bin/brew" shellenv)"
 
 log "brew update"
 brew update
