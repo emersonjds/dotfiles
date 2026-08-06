@@ -1,7 +1,6 @@
 dart-code.dart-code
 dart-code.flutter
 dbaeumer.vscode-eslint
-dracula-theme-pro.theme-dracula-pro
 dsznajder.es7-react-js-snippets
 eamodio.gitlens
 editorconfig.editorconfig
