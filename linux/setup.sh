@@ -375,6 +375,9 @@ bash "$SCRIPT_DIR/keyboard.sh" || warn "keyboard setup failed"
 
 log "System language"
 bash "$SCRIPT_DIR/locale.sh" || warn "locale setup failed"
+
+log "Performance tuning"
+bash "$SCRIPT_DIR/performance.sh" || warn "performance tuning failed"
 # A .deb built by the people who make the app is the closest Linux gets to a macOS cask.
 # Flathub is the fallback, not the first choice: every entry for these apps is a community
 # repackage — not one of them is vendor-verified — so prefer upstream where it exists.

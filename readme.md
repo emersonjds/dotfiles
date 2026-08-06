@@ -267,6 +267,28 @@ KB_LAYOUT=br KB_VARIANT= ./linux/keyboard.sh   # ABNT2 instead of us-intl
 KB_OPTIONS= ./linux/keyboard.sh                # keep Ctrl where Linux puts it
 ```
 
+## Performance (Linux)
+
+`linux/performance.sh` changes four kernel settings and disables services whose hardware
+is not present. None of it is a benchmark trick:
+
+- **`vm.swappiness = 10`** — the default of 60 is tuned for a machine that might genuinely
+  need swap. With 8 GB or more and an SSD it evicts pages that are about to be read again.
+- **`vm.vfs_cache_pressure = 50`** — keeps dentry and inode caches longer, which is what a
+  source tree of tens of thousands of small files is made of.
+- **`fs.inotify.max_user_watches = 524288`** — the one that actually bites. Every watcher
+  (bundler, test runner, IDE) takes one per directory and `node_modules` alone can hold
+  tens of thousands. Running out shows up as a watcher that silently stops noticing
+  changes rather than as an error.
+- **Power profile `performance`** — `intel_pstate` parks the cores well below their turbo
+  range under the balanced profile.
+
+Services are disabled only when the thing they serve is absent: cups when no printer is
+configured, ModemManager when there is no WWAN hardware, `NetworkManager-wait-online`
+because it holds up boot for a route a laptop gets seconds later anyway. **Bluetooth is
+never touched** — on a laptop it is often the keyboard and mouse, and switching it off
+mid-script would lock you out of your own machine.
+
 ## System language (Linux)
 
 `shell/env.sh` forces `LC_ALL=en_US.UTF-8` for the terminal, so `linux/locale.sh` sets the
@@ -326,6 +348,7 @@ shell instead of assuming zsh; getting that wrong fails silently.
 | `linux/setup.sh`                    | apt / dnf / pacman base + Homebrew-on-Linux + Flatpak + PWA shortcuts    |
 | `linux/keyboard.sh`                 | Layout with dead keys + Mac-style Cmd↔Ctrl swap; also runs standalone    |
 | `linux/locale.sh`                   | System language, aligned with the `LC_ALL` the shell already forces      |
+| `linux/performance.sh`              | Kernel tuning and services whose hardware is absent; never Bluetooth     |
 | `shell/brew.sh`                     | The only file that knows Homebrew's prefix; shared by zsh and bash       |
 | `shell/`, `config/`, `git/`         | The files that get copied to the machine                                 |
 | `packages/`                         | `npm-global.txt`, `vscode-extensions.txt`                                |
