@@ -1,14 +1,38 @@
-# Dotfiles
+<h1 align="center">Dotfiles</h1>
 
-[![License: MIT](https://img.shields.io/badge/license-MIT-green.svg)](LICENSE)
-![macOS](https://img.shields.io/badge/macOS-supported-black?logo=apple&logoColor=white)
-![Debian/Ubuntu/Mint](https://img.shields.io/badge/Debian%2FUbuntu%2FMint-supported-A81D33?logo=debian&logoColor=white)
-![Fedora](https://img.shields.io/badge/Fedora-supported-51A2DA?logo=fedora&logoColor=white)
-![Arch](https://img.shields.io/badge/Arch-supported-1793D1?logo=archlinux&logoColor=white)
-![Shell](https://img.shields.io/badge/shell-bash%20%7C%20zsh-89e051?logo=gnubash&logoColor=white)
+<p align="center">
+  <a href="LICENSE"><img alt="License: MIT" src="https://img.shields.io/badge/license-MIT-green.svg"></a>
+  <img alt="macOS" src="https://img.shields.io/badge/macOS-supported-black?logo=apple&logoColor=white">
+  <img alt="Shell" src="https://img.shields.io/badge/shell-bash%20%7C%20zsh-89e051?logo=gnubash&logoColor=white">
+</p>
 
-One command turns a bare **macOS**, **Debian / Ubuntu / Mint**, **Fedora** or **Arch** box
-into a working dev machine: shell, SDKs, environment variables, editors and apps.
+<p align="center">
+  <img alt="Debian" src="https://img.shields.io/badge/Debian-supported-A81D33?logo=debian&logoColor=white">
+  <img alt="Ubuntu" src="https://img.shields.io/badge/Ubuntu-supported-E95420?logo=ubuntu&logoColor=white">
+  <img alt="Linux Mint" src="https://img.shields.io/badge/Linux%20Mint-supported-87CF3E?logo=linuxmint&logoColor=white">
+  <img alt="Pop!_OS" src="https://img.shields.io/badge/Pop!__OS-supported-48B9C7?logo=popos&logoColor=white">
+  <img alt="Kali" src="https://img.shields.io/badge/Kali-supported-557C94?logo=kalilinux&logoColor=white">
+</p>
+
+<p align="center">
+  <img alt="Fedora" src="https://img.shields.io/badge/Fedora-supported-51A2DA?logo=fedora&logoColor=white">
+  <img alt="RHEL" src="https://img.shields.io/badge/RHEL-supported-EE0000?logo=redhat&logoColor=white">
+  <img alt="Rocky Linux" src="https://img.shields.io/badge/Rocky-supported-10B981?logo=rockylinux&logoColor=white">
+  <img alt="AlmaLinux" src="https://img.shields.io/badge/AlmaLinux-supported-0F4266?logo=almalinux&logoColor=white">
+  <img alt="CentOS" src="https://img.shields.io/badge/CentOS-supported-262577?logo=centos&logoColor=white">
+</p>
+
+<p align="center">
+  <img alt="Arch" src="https://img.shields.io/badge/Arch-supported-1793D1?logo=archlinux&logoColor=white">
+  <img alt="Manjaro" src="https://img.shields.io/badge/Manjaro-supported-35BF5C?logo=manjaro&logoColor=white">
+  <img alt="EndeavourOS" src="https://img.shields.io/badge/EndeavourOS-supported-7F3FBF?logo=endeavouros&logoColor=white">
+  <img alt="Garuda" src="https://img.shields.io/badge/Garuda-supported-2C2E34?logo=archlinux&logoColor=white">
+  <img alt="SteamOS" src="https://img.shields.io/badge/SteamOS-supported-1A9FFF?logo=steamdeck&logoColor=white">
+</p>
+
+One command turns a bare **macOS** or **Linux** box into a working dev machine: shell,
+SDKs, environment variables, editors and apps. Every Debian, Fedora and Arch derivative
+is covered — see [Supported systems](#supported-systems) for the full list.
 
 ```bash
 git clone <this-repo> ~/dotfiles
@@ -65,16 +89,33 @@ Non-zero exit when anything is off, so it works in a script too.
 
 ## Supported systems
 
-| System                          | Detected as | System base | GUI apps              |
-| ------------------------------- | ----------- | ----------- | --------------------- |
-| macOS                           | `macos`     | Homebrew    | casks + Mac App Store |
-| Debian, Ubuntu, Mint, Pop!\_OS… | `debian`    | `apt`       | `.deb` + Flatpak      |
-| Fedora, RHEL, Rocky, Alma       | `fedora`    | `dnf`       | `.rpm` + Flatpak      |
-| Arch, Manjaro, EndeavourOS      | `arch`      | `pacman`    | Flatpak               |
+| Detected as | System base | GUI apps              |
+| ----------- | ----------- | --------------------- |
+| `macos`     | Homebrew    | casks + Mac App Store |
+| `debian`    | `apt`       | vendor `.deb`         |
+| `fedora`    | `dnf`       | `.rpm` + Flathub      |
+| `arch`      | `pacman`    | Flathub               |
 
-Derivatives are matched through `ID_LIKE` in `/etc/os-release`, so Mint and Pop!\_OS resolve
-to `debian` without being named. Only the system base and the GUI apps are distro-specific:
-every CLI comes from Homebrew on Linux, so the terminal is byte-identical everywhere.
+Nothing is matched by name. `detect_os()` reads `ID` and `ID_LIKE` from `/etc/os-release`
+and keys on the family, so a derivative works whether or not anyone here had heard of it:
+
+| Family   | Matches `ID` / `ID_LIKE` containing | Known to work                                                                                                              |
+| -------- | ----------------------------------- | -------------------------------------------------------------------------------------------------------------------------- |
+| `debian` | `debian`, `ubuntu`, `linuxmint`     | Debian · Ubuntu (and the Kubuntu/Xubuntu/Lubuntu flavours) · Linux Mint · LMDE · Pop!\_OS · elementary OS · Zorin OS · KDE neon · Kali · MX Linux · Deepin · Devuan |
+| `fedora` | `fedora`, `rhel`, `centos`          | Fedora (and the spins) · RHEL · CentOS Stream · Rocky Linux · AlmaLinux · Oracle Linux · Nobara                              |
+| `arch`   | `arch`                              | Arch · Manjaro · EndeavourOS · Garuda · ArcoLinux · CachyOS · SteamOS 3                                                     |
+
+**Not supported:** openSUSE and derivatives (`ID_LIKE=suse`), Alpine, Void, Gentoo, NixOS.
+They fail loudly with an unsupported-OS message rather than guessing at a package manager.
+
+**Linux is x86_64 only.** Homebrew publishes no ARM Linux bottles, and Chrome, ngrok,
+DBeaver, Obsidian, Bruno and Compass are all fetched as `amd64` builds. That rules out
+Raspberry Pi OS and the ARM server images even though `detect_os` recognises them. macOS
+is fine on both architectures — Homebrew picks the prefix per machine.
+
+Only the system base and the GUI apps are distro-specific: every CLI comes from Homebrew on
+Linux, so the terminal is byte-identical everywhere. The vendor `.deb` path is Debian-only
+by nature — Fedora and Arch fall back to Flathub for the same apps.
 
 Two things a derivative gets wrong if you trust it:
 
