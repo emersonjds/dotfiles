@@ -1,6 +1,12 @@
 #!/usr/bin/env bash
-# Cross-platform environment. Sourced by ~/.zshrc.
+# Cross-platform environment. Sourced by ~/.zshrc and by ~/.bashrc.
 # Everything resolves at runtime: no hardcoded versions, no machine-specific paths.
+#
+# rbenv and pyenv generate shell-specific init code, so the shell has to be named rather
+# than assumed. Getting this wrong is quiet: `rbenv init - zsh` evaluated by bash defines
+# nothing usable and reports no error.
+_shell_name="zsh"
+[ -n "${BASH_VERSION:-}" ] && _shell_name="bash"
 
 # Keeps PATH from growing on every re-source.
 path_prepend() {
@@ -18,13 +24,10 @@ JAVA_VERSION="${JAVA_VERSION:-17}"
 
 _os="$(uname -s)"
 
-# Homebrew belongs in ~/.zprofile; this is the fallback for non-login shells.
-if ! command -v brew >/dev/null 2>&1; then
-  for _b in /opt/homebrew/bin/brew /usr/local/bin/brew /home/linuxbrew/.linuxbrew/bin/brew; do
-    [ -x "$_b" ] && { eval "$("$_b" shellenv)"; break; }
-  done
-  unset _b
-fi
+# Homebrew belongs in ~/.zprofile; this is the fallback for non-login shells. Both go
+# through the same file, so the list of prefixes exists in exactly one place.
+# shellcheck disable=SC1091
+[ -r "$_shell_config_dir/brew.sh" ] && . "$_shell_config_dir/brew.sh"
 
 if [ "$_os" = "Darwin" ]; then
   JAVA_HOME="$(/usr/libexec/java_home -v "$JAVA_VERSION" 2>/dev/null)"
@@ -52,6 +55,25 @@ path_prepend "$ANDROID_HOME/emulator"
 path_prepend "$ANDROID_HOME/platform-tools"
 path_prepend "$ANDROID_HOME/cmdline-tools/latest/bin"
 
+# The macOS cask links flutter into brew's bin; on Linux it is an upstream tarball.
+# path_prepend ignores the one that isn't there.
+path_prepend "$HOME/development/flutter/bin"
+path_prepend "$HOME/.pub-cache/bin"
+
+# postgresql is keg-only, so brew never links psql onto PATH. Pick the newest installed
+# version rather than whichever one the glob happens to return last.
+if [ -n "${HOMEBREW_PREFIX:-}" ]; then
+  _pg_best=0
+  for _pg in "$HOMEBREW_PREFIX"/opt/postgresql@*/bin; do
+    [ -d "$_pg" ] || continue
+    _pg_v="${_pg%/bin}"; _pg_v="${_pg_v##*postgresql@}"; _pg_v="${_pg_v%%.*}"
+    case "$_pg_v" in ''|*[!0-9]*) continue ;; esac
+    [ "$_pg_v" -gt "$_pg_best" ] && { _pg_best="$_pg_v"; _pg_dir="$_pg"; }
+  done
+  [ -n "${_pg_dir:-}" ] && path_prepend "$_pg_dir"
+  unset _pg _pg_v _pg_best _pg_dir
+fi
+
 # nvm.sh and its completions are loaded late, from ~/.zshrc.
 export NVM_DIR="$HOME/.nvm"
 export BUN_INSTALL="$HOME/.bun"
@@ -65,7 +87,7 @@ path_prepend "${XDG_CONFIG_HOME:-$HOME/.config}/yarn/global/node_modules/.bin"
 if command -v rbenv >/dev/null 2>&1 && [ -z "${RBENV_SHELL:-}" ]; then
   export RBENV_ROOT="${RBENV_ROOT:-$HOME/.rbenv}"
   path_prepend "$RBENV_ROOT/bin"
-  eval "$(rbenv init - zsh)"
+  eval "$(rbenv init - "$_shell_name")"
 fi
 
 # rustup writes this env file; a brew install only leaves ~/.cargo/bin.
@@ -77,7 +99,7 @@ path_prepend "$HOME/.cargo/bin"
 if command -v pyenv >/dev/null 2>&1; then
   export PYENV_ROOT="${PYENV_ROOT:-$HOME/.pyenv}"
   path_prepend "$PYENV_ROOT/bin"
-  eval "$(pyenv init - zsh)"
+  eval "$(pyenv init - "$_shell_name")"
 fi
 
 path_prepend "$HOME/.local/share/solana/install/active_release/bin"
@@ -90,4 +112,4 @@ export REACT_NATIVE_NO_METRO_WINDOW=true
 # Last, so it wins: home of claude, uv and every pipx binary.
 path_prepend "$HOME/.local/bin"
 export PATH
-unset _os _shell_config_dir
+unset _os _shell_config_dir _shell_name
