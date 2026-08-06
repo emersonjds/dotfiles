@@ -13,24 +13,38 @@ node npm npx pnpm yarn bun claude
 java javac mvn
 python3 pipx uv
 ruby gem rbenv cargo rustc
-flutter dart adb adbe kdoctor watchman ngrok
+flutter dart adb adbe watchman ngrok
 psql mysql supabase gh docker shellcheck"
-[ "$(uname -s)" = "Darwin" ] && TOOLS="$TOOLS pod mas"
+# Tools only one OS can have: cocoapods, mas and kdoctor (an Xcode toolchain probe)
+# are macOS-only, and flatpak carries the GUI apps that arrive as casks there.
+if [ "$(uname -s)" = "Darwin" ]; then
+  TOOLS="$TOOLS pod mas kdoctor"
+else
+  TOOLS="$TOOLS flatpak"
+fi
 VERSIONED="zsh git brew node npm java python3 ruby cargo"
 VARS="JAVA_HOME ANDROID_HOME ANDROID_SDK_ROOT NVM_DIR BUN_INSTALL PNPM_HOME"
 
 # A nested shell inherits an already-built PATH, which hides ordering bugs and
 # missing exports. Starting from a bare environment reproduces a real new terminal.
-probe_login_shell() {
-  local tools; tools="$(echo "$TOOLS" | tr '\n' ' ')"
+#
+# Every "is this installed" question has to be asked through here, not in doctor's own
+# shell: brew's npm and nvm's npm keep separate global roots, so asking the wrong one
+# reports every global package missing while the terminal has them all.
+login_shell_run() {
   env -i HOME="$HOME" USER="${USER:-}" TERM="${TERM:-xterm}" SHELL=/bin/zsh \
     PATH=/usr/bin:/bin:/usr/sbin:/sbin \
-    zsh -lic '
+    zsh -lic "$1" 2>/dev/null
+}
+
+probe_login_shell() {
+  local tools; tools="$(echo "$TOOLS" | tr '\n' ' ')"
+  login_shell_run '
       for c in '"$tools"'; do print -r -- "cmd|$c|$(command -v $c 2>/dev/null)"; done
       for c in '"$VERSIONED"'; do print -r -- "ver|$c|$($c --version 2>/dev/null | head -1)"; done
       for v in '"$VARS"'; do print -r -- "var|$v|${(P)v}"; done
       print -r -- "path|PATH|$PATH"
-    ' 2>/dev/null
+    '
 }
 
 field() { printf '%s\n' "$SHELL_DUMP" | grep "^$1|$2|" | cut -d'|' -f3-; }
@@ -110,7 +124,7 @@ if command_exists brew && [ "$(uname -s)" = "Darwin" ]; then
 fi
 
 log "npm globals"
-installed="$(npm ls -g --depth=0 --parseable 2>/dev/null)"
+installed="$(login_shell_run 'npm ls -g --depth=0 --parseable')"
 while read -r pkg; do
   case "$installed" in
     *"/node_modules/$pkg"*) ok "$pkg" ;;
