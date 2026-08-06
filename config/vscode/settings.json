@@ -5,5 +5,7 @@
     "workbench.colorTheme": "Dracula Pro (Blade)",
     "workbench.iconTheme": "catppuccin-perfect-mocha",
     "extensions.ignoreRecommendations": true,
-    "terminal.integrated.fontFamily": "JetBrainsMono Nerd Font Mono"
+    "terminal.integrated.fontFamily": "JetBrainsMono Nerd Font Mono",
+    "terminal.integrated.defaultProfile.linux": "zsh",
+    "terminal.integrated.defaultProfile.osx": "zsh"
 }
