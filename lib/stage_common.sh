@@ -31,6 +31,28 @@ install_configs() {
   done < <(dotfiles_map)
 }
 
+# ~/.bashrc is the distro's file, not ours, so this is the one config that gets appended
+# to rather than copied over. Without it a bash session has no Homebrew on PATH and every
+# `brew` call opens with a warning — and bash is still what scripts, editors and IDE
+# terminals run, whatever the login shell is.
+BASH_HOOK_MARKER="# >>> dotfiles >>>"
+install_bash_hook() {
+  local rc="$HOME/.bashrc"
+  [ -f "$rc" ] || return 0
+  grep -qF "$BASH_HOOK_MARKER" "$rc" && return 0
+  log "Hooking ~/.bashrc into the shared shell config"
+  cat >> "$rc" <<EOF
+
+$BASH_HOOK_MARKER
+# Managed by dotfiles. Same environment the zsh side gets; remove this block to opt out.
+for _f in brew env aliases; do
+  [ -r "\$HOME/.config/shell/\$_f.sh" ] && . "\$HOME/.config/shell/\$_f.sh"
+done
+unset _f
+# <<< dotfiles <<<
+EOF
+}
+
 install_oh_my_zsh() {
   if [ -d "$HOME/.oh-my-zsh" ]; then
     log "Oh My Zsh: updating"
@@ -83,6 +105,18 @@ install_bun() {
   curl -fsSL https://bun.sh/install | bash || warn "bun install failed"
 }
 
+# env.sh exports PNPM_HOME and puts it on PATH, but nothing creates it: brew's pnpm
+# leaves it to `pnpm setup`, which would rewrite the shell rc files this repo owns.
+# Mirrors the per-OS path in shell/env.sh.
+ensure_runtime_dirs() {
+  if [ "$(uname -s)" = "Darwin" ]; then
+    mkdir -p "$HOME/Library/pnpm"
+  else
+    mkdir -p "$HOME/.local/share/pnpm"
+  fi
+  mkdir -p "$HOME/.local/bin"
+}
+
 install_npm_globals() {
   command_exists npm || { warn "npm missing; skipped globals"; return 0; }
   local pkg
@@ -128,6 +162,8 @@ set_default_shell() {
 run_common_stage() {
   install_oh_my_zsh
   install_configs
+  install_bash_hook
+  ensure_runtime_dirs
   install_node
   install_ruby
   install_bun
