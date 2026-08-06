@@ -33,6 +33,43 @@ detect_os() {
   esac
 }
 
+# What detect_os() returns is a package-manager family, not a distro: every apt system
+# answers "debian" because they all take the same code path. That is the right thing to
+# branch on and a terrible thing to print — on Mint, "Detected OS: debian" reads like a
+# misdetection. This is the human-facing name, for logs only.
+os_description() {
+  if [ "$(uname -s)" = "Darwin" ]; then
+    printf 'macOS %s (%s)\n' "$(sw_vers -productVersion 2>/dev/null || echo '?')" "$(uname -m)"
+    return 0
+  fi
+  [ -r /etc/os-release ] || { uname -sr; return 0; }
+  local pretty codename base
+  pretty="$(. /etc/os-release && echo "${PRETTY_NAME:-${NAME:-Linux}}")"
+  codename="$(. /etc/os-release && echo "${VERSION_CODENAME:-}")"
+  base="$(ubuntu_codename 2>/dev/null || true)"
+  # Mint names its own release (zena) and rides an Ubuntu one (noble). Both matter: the
+  # first is what the user sees, the second is what third-party apt repos are keyed on.
+  if [ -n "$base" ] && [ "$base" != "$codename" ]; then
+    printf '%s [%s, on Ubuntu %s]\n' "$pretty" "${codename:-?}" "$base"
+  elif [ -n "$codename" ]; then
+    printf '%s [%s]\n' "$pretty" "$codename"
+  else
+    printf '%s\n' "$pretty"
+  fi
+}
+
+# Mint reports its own codename (zena) and a Debian version (trixie/sid) that has
+# nothing to do with its actual base. Third-party apt repos are keyed on the Ubuntu
+# codename, so resolve that: UBUNTU_CODENAME on the derivatives, VERSION_CODENAME on
+# Ubuntu itself.
+ubuntu_codename() {
+  [ -r /etc/os-release ] || return 1
+  local c
+  c="$(. /etc/os-release && echo "${UBUNTU_CODENAME:-${VERSION_CODENAME:-}}")"
+  [ -n "$c" ] || return 1
+  echo "$c"
+}
+
 brew_prefix() {
   if command_exists brew; then
     brew --prefix
@@ -41,6 +78,20 @@ brew_prefix() {
   else
     echo /home/linuxbrew/.linuxbrew
   fi
+}
+
+# Puts an already-installed Homebrew on PATH, and says whether it found one.
+#
+# The setup scripts run as non-interactive subprocesses: no rc file has run, so nothing has
+# put brew on PATH for them. Asking `command_exists brew` first therefore answers "no" on a
+# machine that has had Homebrew for months, and the installer runs again from scratch —
+# which is where "Warning: /home/linuxbrew/.linuxbrew/bin is not in your PATH" comes from.
+# Call this before deciding whether to install.
+load_brew() {
+  command_exists brew && return 0
+  local b; b="$(brew_prefix)/bin/brew"
+  [ -x "$b" ] || return 1
+  eval "$("$b" shellenv)"
 }
 
 vscode_cli() {
@@ -61,12 +112,14 @@ dotfiles_map() {
   cat <<EOF
 shell/zshrc|$HOME/.zshrc
 shell/zprofile|$HOME/.zprofile
+shell/brew.sh|$SHELL_CONFIG_DIR/brew.sh
 shell/env.sh|$SHELL_CONFIG_DIR/env.sh
 shell/aliases.sh|$SHELL_CONFIG_DIR/aliases.sh
 shell/plugins.sh|$SHELL_CONFIG_DIR/plugins.sh
 git/gitconfig|$HOME/.gitconfig
 config/starship.toml|$xdg/starship.toml
 config/zed/settings.json|$xdg/zed/settings.json
+config/ghostty/config|$xdg/ghostty/config
 EOF
   if [ "$(uname -s)" = "Darwin" ]; then
     cat <<EOF
@@ -75,6 +128,8 @@ config/vscode/settings.json|$HOME/Library/Application Support/Code/User/settings
 EOF
   else
     echo "config/vscode/settings.json|$xdg/Code/User/settings.json"
+    # X11-only: macOS has no Compose layer to correct.
+    echo "config/XCompose|$HOME/.XCompose"
   fi
 }
 
